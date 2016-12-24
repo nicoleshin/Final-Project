@@ -24,23 +24,23 @@ public class Main extends Application {
         GraphicsContext gc = canvas.getGraphicsContext2D();               //canvas has graphical abilities and such
 	canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED,
 			       new EventHandler<MouseEvent>() {
-				   @Override
-				   public void handle(MouseEvent e) {
-				       gc.setFill(Paint.valueOf("RED"));
-				       if (e.getButton() == MouseButton.PRIMARY){
-					   gc.fillRect(e.getX() - 2, e.getY() - 2, 4, 4);     //Draw a red rectangle at place of mouse-click
-				       }
-				       if (e.getButton() == MouseButton.SECONDARY){
-					   gc.clearRect(e.getX() - 2, e.getY() - 2, 4, 4);
-				       }
-				   }
-			       });
+	 			   @Override
+	 			   public void handle(MouseEvent e) {
+	 			       gc.setFill(Paint.valueOf("RED"));
+	 			       if (e.getButton() == MouseButton.PRIMARY){
+	 				   gc.fillRect(e.getX() - 2, e.getY() - 2, 4, 4);     //Draw a red rectangle at place of left-mouse-drag
+	 			       }
+	 			       if (e.getButton() == MouseButton.SECONDARY){
+	 				   gc.clearRect(e.getX() - 2, e.getY() - 2, 4, 4);    //Erase a rectangle at place of right-mouse-drag
+	 			       }
+	 			   }
+	 		       });
 	canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, 
 			       new EventHandler<MouseEvent>() {
 				   @Override
 				   public void handle(MouseEvent t) {            
 				       if ((t.getClickCount() >1) && (t.getButton() == MouseButton.SECONDARY)) {
-					   reset(canvas, Color.WHITE);
+					   reset(canvas, Color.WHITE);                        //Method "reset" at place of double-right-click (see "reset" below)
 				       }
 				   }
 			       });
