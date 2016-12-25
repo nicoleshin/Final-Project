@@ -18,6 +18,7 @@ public class AddLayerPopup{
 	final TextField layerName = new TextField();
 	layerName.setPromptText("Enter the layer name.");
 	layerName.setPrefColumnCount(10);
+	layerName.getText();
 	layerName.setLayoutY(50);
 	
 	//submit button for Layer name submitting
@@ -28,6 +29,7 @@ public class AddLayerPopup{
 	submit.setOnAction(new EventHandler<ActionEvent>() {
 		@Override
 		public void handle(ActionEvent e) {
+		    return layerName.getText();
 		    popupwindow.close();
 		}
 	    });
@@ -38,7 +40,6 @@ public class AddLayerPopup{
         Scene scene= new Scene(layout, 300, 250);
         popupwindow.setScene(scene);
 	popupwindow.showAndWait();
-	return layerName.getText();
     }
     
 }
