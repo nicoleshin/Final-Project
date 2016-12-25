@@ -48,6 +48,7 @@ public class Main extends Application {
 		}
 	    });
 
+	//logs mouse dragging
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(MouseEvent e) {
@@ -70,7 +71,8 @@ public class Main extends Application {
 		    System.out.println(Mouse_Log.toString());
 		}
 	    });
-	
+
+	//logs mouse clicking
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(MouseEvent t) {
@@ -86,8 +88,14 @@ public class Main extends Application {
 		    System.out.println(Mouse_Log.toString());
 		}
 	    });
+
+	//submit button for Layer name submitting
+	Button submit = new Button("Add new Layer");
+	submit.setLayoutY(50);
+	//submit does stuff
+	submit.setOnAction(l -> AddLayerPopup.display());
 	
-	root.getChildren().addAll(canvas, colorPicker);                                   //the group "root" now has the previously created canvas in it
+	root.getChildren().addAll(canvas, colorPicker, submit);        //the group "root" now has the previously created items in it
         stage.setScene(new Scene(root));                                  //the stage's scene is now the group "root" (consisting of "canvas")
         stage.show();                                                     //the stage is now shown
     }
@@ -100,8 +108,8 @@ public class Main extends Application {
 
     private void eraseLine(Canvas canvas, double fromX, double fromY, double toX, double toY){
 	GraphicsContext gc = canvas.getGraphicsContext2D();
-	double Xincrement = (toX - fromX) / 20;
-	double Yincrement = (toY - fromY) / 20;
+	double Xincrement = (toX - fromX) / 40;
+	double Yincrement = (toY - fromY) / 40;
 	while (!(closeEnough(toX, fromX, 1))){
 		gc.clearRect(fromX - (eraserLineWidth / 2), fromY - (eraserLineWidth / 2), eraserLineWidth, eraserLineWidth);
 		fromX += Xincrement;
