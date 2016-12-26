@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.*;
+import javafx.scene.layout.*;
 import javafx.scene.canvas.*;
 import javafx.scene.control.*;
 import javafx.scene.paint.*;
@@ -133,23 +134,28 @@ public class Main extends Application{
 		}
 	    });
 
-	for (Canvas canvases: layers) {
-	    root.getChildren().add(canvases);
+	BorderPane borderPane = new BorderPane();
+	Pane pane = new Pane();
+	for (Canvas canvases: layers) {                                   //add all layers to the root-group
+	    canvases.setVisible(true);
+	    pane.getChildren().add(canvases);
 	}
-	root.getChildren().addAll(colorPicker,
+	borderPane.setCenter(pane);
+	root.getChildren().addAll(borderPane,
+				  colorPicker,
 				  newLayer,
 				  lineWidth,
 				  lineWidthLabel,
 				  eraserLineWidth,
 				  eraserLineWidthLabel,
-				  layerSelector);                        //the group "root" now has the previously created items in it
+				  layerSelector);                         //the group "root" now has the previously created items in it
         stage.setScene(new Scene(root));                                  //the stage's scene is now the group "root" (consisting of "canvas")
         stage.show();                                                     //the stage is now shown
     }
     
     //for the case of needing to clear? By smothering everything with a new thing on top?
     private void reset(GraphicsContext gc) {
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.clearRect(0, 0, WIDTH, HEIGHT);
     }
 
     //had to write this, since there was no 'erase-in-a-line' funcion, like there is for stroke-a-line
