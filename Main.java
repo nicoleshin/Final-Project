@@ -9,21 +9,22 @@ import javafx.scene.input.*;
 import javafx.scene.shape.*;
 import javafx.scene.image.*;
 import javafx.event.*;
-import java.util.ArrayList;
 import javafx.beans.*;
+import javafx.collections.*;
+import java.util.*;
 
 public class Main extends Application{
 
-    private final double WIDTH = 1000.0;
-    private final double HEIGHT = 700.0;
-    private ArrayList<Double> mouseLog;
-    private ArrayList<Canvas> layers;
-    private ArrayList<String> layerStrings;
-    private ChoiceBox<String> layerSelector;
-    private Pane pane;
-    private final ColorPicker colorPicker = new ColorPicker();
-    private final Slider lineWidth = new Slider(0,100,15);
-    private final Slider eraserLineWidth = new Slider(0,100,15);
+    private static final double WIDTH = 1000.0;
+    private static final double HEIGHT = 700.0;
+    private static ArrayList<Double> mouseLog;
+    private static HashMap<String, Canvas> layers;
+    public static ArrayList<String> layerStrings;
+    private static ChoiceBox<String> layerSelector;
+    private static Pane pane;
+    private static final ColorPicker colorPicker = new ColorPicker();
+    private static final Slider lineWidth = new Slider(0,100,15);
+    private static final Slider eraserLineWidth = new Slider(0,100,15);
 
     public static void main(String[] args) {
         launch(args);
@@ -39,8 +40,9 @@ public class Main extends Application{
         layerSelector.setTooltip(new Tooltip("Select a Layer"));
         layerSelector.setLayoutY(75);
 
-        layers = new ArrayList<Canvas>();
         layerStrings = new ArrayList<String>();
+        layers = new HashMap<String, Canvas>();
+
 
         BorderPane borderPane = new BorderPane();
         pane = new Pane();
@@ -79,6 +81,10 @@ public class Main extends Application{
         // Opens pop up prompt for new layer creation
         newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
 
+        Button reorderLayers = new Button("Reorder Layers");
+        reorderLayers.setLayoutY(350);
+        reorderLayers.setOnAction(l -> setLayerStrings(ReorderLayersPopup.display()));
+
         // The group "root" now has previously added items in it
         root.getChildren().addAll(borderPane,
                 colorPicker,
@@ -87,7 +93,8 @@ public class Main extends Application{
                 lineWidthLabel,
                 eraserLineWidth,
                 eraserLineWidthLabel,
-                layerSelector);
+                layerSelector,
+                reorderLayers);
         // The stage's scene is not the grouop root
         stage.setScene(new Scene(root));
         stage.show();
@@ -116,20 +123,20 @@ public class Main extends Application{
 
     private void makeNewLayer(String layerName){
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
-        layers.add(canvas);
-        layerSelector.getItems().add(layerName);
         layerStrings.add(layerName);
+        layers.put(layerName, canvas);
+
+        layerSelector.getItems().add(layerName);
         layerSelector.setValue(layerName);
         pane.getChildren().add(0,canvas);
         logMouseMovement();
         logMouseDragging();
         logMouseClicking();
-        //System.out.println(layers.toString());
-        //System.out.println(layerStrings.toString());
+        //System.out.println(layerStrings);
     }
 
     private Canvas getCurrentLayer() {
-        return layers.get(layerStrings.indexOf(layerSelector.getValue()));
+        return layers.get(layerSelector.getValue());
     }
 
     private void logMouseMovement() {
@@ -142,7 +149,7 @@ public class Main extends Application{
                     mouseLog.remove(10);
                     mouseLog.remove(10);
                 }
-                System.out.println(mouseLog.toString());
+                //System.out.println(mouseLog.toString());
             }
         });
     }
@@ -152,7 +159,7 @@ public class Main extends Application{
             @Override
             public void handle(MouseEvent e) {
                 GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
-                System.out.println(layerStrings.indexOf(layerSelector.getValue()));
+                //System.out.println(layerStrings.indexOf(layerSelector.getValue()));
                 if (e.isPrimaryButtonDown()) {
                     gc.setLineCap(StrokeLineCap.ROUND);
                     gc.setStroke(colorPicker.getValue());
@@ -172,7 +179,7 @@ public class Main extends Application{
                     mouseLog.remove(10);
                     mouseLog.remove(10);
                 }
-                System.out.println(mouseLog.toString());
+                //System.out.println(mouseLog.toString());
             }
         });
     }
@@ -197,8 +204,19 @@ public class Main extends Application{
                     mouseLog.remove(10);
                     mouseLog.remove(10);
                 }
-                System.out.println(mouseLog.toString());
+                //System.out.println(mouseLog.toString());
             }
         });
+    }
+
+    private void setLayerStrings(ObservableList<String> n) {
+        for (int i = n.size()-1; i > -1; i--) {
+            layerStrings.set(i, n.get(i));
+            layers.get(n.get(i)).toFront();
+        }
+        String selected = layerSelector.getSelectionModel().getSelectedItem();
+        layerSelector.setItems(n);
+        layerSelector.getSelectionModel().select(selected);
+        //System.out.println(layerStrings);
     }
 }
