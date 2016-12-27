@@ -1,12 +1,9 @@
-import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.scene.input.*;
 import javafx.event.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.collections.*;
 import javafx.scene.input.*;
 
