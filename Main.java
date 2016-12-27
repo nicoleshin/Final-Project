@@ -20,6 +20,7 @@ public class Main extends Application{
     private ArrayList<Canvas> layers;
     private ArrayList<String> layerStrings;
     private ChoiceBox<String> layerSelector;
+    private Pane pane;
 
     public static void main(String[] args) {
         launch(args);
@@ -30,10 +31,16 @@ public class Main extends Application{
         stage.setTitle("Basic Paint Program");
         Group root = new Group();
         Canvas canvas = new Canvas(WIDTH,HEIGHT);
+
         layers = new ArrayList<Canvas>();
         layers.add(canvas);
         layerStrings = new ArrayList<String>();
         layerStrings.add("Layer1");
+
+        BorderPane borderPane = new BorderPane();
+        pane = new Pane();
+        pane.getChildren().add(canvas);
+        borderPane.setCenter(pane);
 
         final ColorPicker colorPicker = new ColorPicker();                 //add colorpicker
         colorPicker.setValue(Color.BLACK);
@@ -134,13 +141,6 @@ public class Main extends Application{
             }
         });
 
-        BorderPane borderPane = new BorderPane();
-        Pane pane = new Pane();
-        for (Canvas canvases: layers) {                                   //add all layers to the root-group
-            canvases.setVisible(true);
-            pane.getChildren().add(canvases);
-        }
-        borderPane.setCenter(pane);
         root.getChildren().addAll(borderPane,
                 colorPicker,
                 newLayer,
@@ -175,12 +175,13 @@ public class Main extends Application{
     }
 
     private void makeNewLayer(String layerName, ChoiceBox<String> layerSelector){
-        layers.add(new Canvas(WIDTH,HEIGHT));
+        Canvas canvas = new Canvas(WIDTH, HEIGHT);
+        layers.add(canvas);
         layerSelector.getItems().add(layerName);
         layerStrings.add(layerName);
         layerSelector.setValue(layerName);
-        System.out.println(layers.toString());
-        System.out.println(layerStrings.toString());
+        pane.getChildren().add(0,canvas);
+        //System.out.println(layers.toString());
+        //System.out.println(layerStrings.toString());
     }
-
 }
