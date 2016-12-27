@@ -16,11 +16,14 @@ public class Main extends Application{
 
     private final double WIDTH = 1000.0;
     private final double HEIGHT = 700.0;
-    private ArrayList<Double> Mouse_Log;
+    private ArrayList<Double> mouseLog;
     private ArrayList<Canvas> layers;
     private ArrayList<String> layerStrings;
     private ChoiceBox<String> layerSelector;
     private Pane pane;
+    private final ColorPicker colorPicker = new ColorPicker();
+    private final Slider lineWidth = new Slider(0,100,15);
+    private final Slider eraserLineWidth = new Slider(0,100,15);
 
     public static void main(String[] args) {
         launch(args);
@@ -30,24 +33,27 @@ public class Main extends Application{
     public void start(Stage stage) {
         stage.setTitle("Basic Paint Program");
         Group root = new Group();
-        Canvas canvas = new Canvas(WIDTH,HEIGHT);
+
+        // Choice selector for layers
+        layerSelector = new ChoiceBox<String>();
+        layerSelector.setTooltip(new Tooltip("Select a Layer"));
+        layerSelector.setLayoutY(75);
 
         layers = new ArrayList<Canvas>();
-        layers.add(canvas);
         layerStrings = new ArrayList<String>();
-        layerStrings.add("Layer1");
 
         BorderPane borderPane = new BorderPane();
         pane = new Pane();
-        pane.getChildren().add(canvas);
+        makeNewLayer("Layer1");
         borderPane.setCenter(pane);
 
-        final ColorPicker colorPicker = new ColorPicker();                 //add colorpicker
+        // Add Color picker
         colorPicker.setValue(Color.BLACK);
 
-        Mouse_Log = new ArrayList<Double>(20);                             //makes the mouse-action log
+        // Setup mouse-action log
+        mouseLog = new ArrayList<Double>(20);
 
-        final Slider lineWidth = new Slider(0,100,15);                     //slider for painting size
+        // Setup slider for brush size
         lineWidth.setShowTickLabels(true);
         lineWidth.setShowTickMarks(true);
         lineWidth.setMajorTickUnit(10);
@@ -57,7 +63,7 @@ public class Main extends Application{
         final Label lineWidthLabel = new Label("Brush Width");
         lineWidthLabel.setLayoutY(125);
 
-        final Slider eraserLineWidth = new Slider(0,100,15);               //slider for erasing size
+        // Setup for eraser size
         eraserLineWidth.setShowTickLabels(true);
         eraserLineWidth.setShowTickMarks(true);
         eraserLineWidth.setMajorTickUnit(10);
@@ -67,80 +73,13 @@ public class Main extends Application{
         final Label eraserLineWidthLabel = new Label("Eraser Width");
         eraserLineWidthLabel.setLayoutY(225);
 
-        Button newLayer = new Button("Add new Layer");                    //button for new Layer making
+        // Setup button for making new layer
+        Button newLayer = new Button("Add new Layer");
         newLayer.setLayoutY(50);
-        newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display(), layerSelector)); //newLayer opens the popup prompt for new layer creation, uses method makeNewLayer
+        // Opens pop up prompt for new layer creation
+        newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
 
-        //choice selector for layers
-        layerSelector = new ChoiceBox<String>();
-        layerSelector.getItems().add("Layer1");
-        layerSelector.setTooltip(new Tooltip("Select a Layer"));
-        layerSelector.setLayoutY(75);
-        layerSelector.setValue("Layer1");
-
-        //logs mouse movement
-        layers.get(layerStrings.indexOf(layerSelector.getValue())).addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent a) {
-                Mouse_Log.add(0, a.getY());
-                Mouse_Log.add(0, a.getX());
-                if (Mouse_Log.size() > 10) {
-                    Mouse_Log.remove(10);
-                    Mouse_Log.remove(10);
-                }
-                System.out.println(Mouse_Log.toString());
-            }
-        });
-
-        //logs mouse dragging
-        layers.get(layerStrings.indexOf(layerSelector.getValue())).addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                GraphicsContext gc = layers.get(layerStrings.indexOf(layerSelector.getValue())).getGraphicsContext2D();
-                System.out.println(layerStrings.indexOf(layerSelector.getValue()));
-                if (e.isPrimaryButtonDown()) {
-                    gc.setLineCap(StrokeLineCap.ROUND);                                //so that it's not ugly
-                    gc.setStroke(colorPicker.getValue());
-                    gc.setLineWidth(lineWidth.getValue());
-                    //gc.fillRect(e.getX() - 2, e.getY() - 2, 4, 4);     //Draw a rectangle at place of left-mouse-drag
-                    gc.strokeLine(Mouse_Log.get(0),Mouse_Log.get(1),e.getX(),e.getY()); //YEEEEEEEEEEEAH!!! you now draw continuous lines instead of seperated squares
-                }
-                if (e.isSecondaryButtonDown()){
-                    //gc.clearRect(e.getX() - 2, e.getY() - 2, 4, 4);    //Erase a rectangle at place of right-mouse-drag
-                    eraseLine(gc, Mouse_Log.get(0),Mouse_Log.get(1),e.getX(),e.getY(),eraserLineWidth.getValue()); //Erases in continuous lines instead of seperated squares!
-                }
-                Mouse_Log.add(0, e.getY());
-                Mouse_Log.add(0, e.getX());
-                if (Mouse_Log.size() > 10) {
-                    Mouse_Log.remove(10);
-                    Mouse_Log.remove(10);
-                }
-                System.out.println(Mouse_Log.toString());
-            }
-        });
-
-        //logs mouse clicking
-        layers.get(layerStrings.indexOf(layerSelector.getValue())).addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent t) {
-                GraphicsContext gc = layers.get(layerStrings.indexOf(layerSelector.getValue())).getGraphicsContext2D();
-                if ((t.getClickCount() >1) && (t.getButton() == MouseButton.SECONDARY)) {
-                    reset(gc);                        //Method "reset" at place of double-right-click (see "reset" below), basically clears screen
-                }
-                if (t.isAltDown()) {
-                    WritableImage canvasSnapshot = canvas.snapshot(new SnapshotParameters(), new WritableImage((int)(WIDTH), (int)(HEIGHT)));
-                    colorPicker.setValue(canvasSnapshot.getPixelReader().getColor((int)(t.getX()), (int)(t.getY()))); //chooses color from screen
-                }
-                Mouse_Log.add(0, t.getY());
-                Mouse_Log.add(0, t.getX());
-                if (Mouse_Log.size() > 10) {
-                    Mouse_Log.remove(10);
-                    Mouse_Log.remove(10);
-                }
-                System.out.println(Mouse_Log.toString());
-            }
-        });
-
+        // The group "root" now has previously added items in it
         root.getChildren().addAll(borderPane,
                 colorPicker,
                 newLayer,
@@ -148,9 +87,10 @@ public class Main extends Application{
                 lineWidthLabel,
                 eraserLineWidth,
                 eraserLineWidthLabel,
-                layerSelector);                         //the group "root" now has the previously created items in it
-        stage.setScene(new Scene(root));                                  //the stage's scene is now the group "root" (consisting of "canvas")
-        stage.show();                                                     //the stage is now shown
+                layerSelector);
+        // The stage's scene is not the grouop root
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 
     //for the case of needing to clear? By smothering everything with a new thing on top?
@@ -169,19 +109,96 @@ public class Main extends Application{
         }
     }
 
-    //helping the erase-a-line
+    // Helping the erase-a-line
     private boolean closeEnough(double X1, double X2, double Closeness){
         return (((X1 - X2) < (Closeness)) && ((X1 - X2) > (0.0 - Closeness)));
     }
 
-    private void makeNewLayer(String layerName, ChoiceBox<String> layerSelector){
+    private void makeNewLayer(String layerName){
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         layers.add(canvas);
         layerSelector.getItems().add(layerName);
         layerStrings.add(layerName);
         layerSelector.setValue(layerName);
         pane.getChildren().add(0,canvas);
+        logMouseMovement();
+        logMouseDragging();
+        logMouseClicking();
         //System.out.println(layers.toString());
         //System.out.println(layerStrings.toString());
+    }
+
+    private Canvas getCurrentLayer() {
+        return layers.get(layerStrings.indexOf(layerSelector.getValue()));
+    }
+
+    private void logMouseMovement() {
+        getCurrentLayer().addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent a) {
+                mouseLog.add(0, a.getY());
+                mouseLog.add(0, a.getX());
+                if (mouseLog.size() > 10) {
+                    mouseLog.remove(10);
+                    mouseLog.remove(10);
+                }
+                System.out.println(mouseLog.toString());
+            }
+        });
+    }
+
+    private void logMouseDragging() {
+        getCurrentLayer().addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
+                System.out.println(layerStrings.indexOf(layerSelector.getValue()));
+                if (e.isPrimaryButtonDown()) {
+                    gc.setLineCap(StrokeLineCap.ROUND);
+                    gc.setStroke(colorPicker.getValue());
+                    gc.setLineWidth(lineWidth.getValue());
+                    //gc.fillRect(e.getX() - 2, e.getY() - 2, 4, 4);     //Draw a rectangle at place of left-mouse-drag
+                    // Able to draw continuous lines instead of separated squares
+                    gc.strokeLine(mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY());
+                }
+                if (e.isSecondaryButtonDown()){
+                    //gc.clearRect(e.getX() - 2, e.getY() - 2, 4, 4);    //Erase a rectangle at place of right-mouse-drag
+                    // Able to erase in continuous lines instead of separted squares
+                    eraseLine(gc, mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY(),eraserLineWidth.getValue());
+                }
+                mouseLog.add(0, e.getY());
+                mouseLog.add(0, e.getX());
+                if (mouseLog.size() > 10) {
+                    mouseLog.remove(10);
+                    mouseLog.remove(10);
+                }
+                System.out.println(mouseLog.toString());
+            }
+        });
+    }
+
+    private void logMouseClicking() {
+        getCurrentLayer().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent t) {
+                GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
+                if ((t.getClickCount() >1) && (t.getButton() == MouseButton.SECONDARY)) {
+                    // Method "reset" clears the screen after a double-right-click
+                    reset(gc);
+                }
+                if (t.isAltDown()) {
+                    WritableImage canvasSnapshot = getCurrentLayer().snapshot(new SnapshotParameters(), new WritableImage((int)(WIDTH), (int)(HEIGHT)));
+                    // Chooses color from screen
+                    colorPicker.setValue(canvasSnapshot.getPixelReader().getColor((int)(t.getX()), (int)(t.getY())));
+                }
+                mouseLog.add(0, t.getY());
+                mouseLog.add(0, t.getX());
+                if (mouseLog.size() > 10) {
+                    mouseLog.remove(10);
+                    mouseLog.remove(10);
+                }
+                System.out.println(mouseLog.toString());
+            }
+        });
     }
 }
