@@ -7,6 +7,8 @@ import javafx.scene.input.*;
 import javafx.event.*;
 import javafx.collections.*;
 import javafx.scene.input.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 public class EditLayersPopup {
 
@@ -47,6 +49,10 @@ public class EditLayersPopup {
         newName.setPrefColumnCount(10);
         Label renameLabel = new Label("Enter a new name for the selected layer");
 
+        // Warning that layer names cannot be empty or repeat
+        final Text warning = new Text("Layer names cannot be blank or repeated");
+        warning.setFill(Color.RED);
+
         // Setup buttons and labels to rename layers
         Button submitName = new Button("Rename");
         submitName.setOnAction(new EventHandler<ActionEvent>() {
@@ -62,6 +68,7 @@ public class EditLayersPopup {
                 down,
                 renameLabel,
                 newName,
+                warning,
                 submitName);
         rightLayout.setAlignment(Pos.CENTER);
 
@@ -102,14 +109,15 @@ public class EditLayersPopup {
     }
 
     private static void rename() {
-        int selectedIndex = list.getSelectionModel().getSelectedIndex();
-        String newLayerName = newName.getText();
-        String oldLayerName = names.get(selectedIndex);
-        names.set(selectedIndex, newLayerName);
-        Main.layers.put(newLayerName, Main.layers.get(oldLayerName));
-        Main.layers.remove(oldLayerName);
-        // reselects the layer
-        list.getSelectionModel().select(selectedIndex);
-        System.out.println(Main.layerStrings);
+        String newLayerName = newName.getText().trim();
+        if (!newLayerName.isEmpty() && !Main.layerStrings.contains(newLayerName)) {
+            int selectedIndex = list.getSelectionModel().getSelectedIndex();
+            String oldLayerName = names.get(selectedIndex);
+            names.set(selectedIndex, newLayerName);
+            Main.layers.put(newLayerName, Main.layers.get(oldLayerName));
+            Main.layers.remove(oldLayerName);
+            // reselects the layer
+            list.getSelectionModel().select(selectedIndex);
+        }
     }
 }
