@@ -18,7 +18,7 @@ public class Main extends Application{
     private static final double WIDTH = 1000.0;
     private static final double HEIGHT = 700.0;
     private static ArrayList<Double> mouseLog;
-    private static HashMap<String, Canvas> layers;
+    public static HashMap<String, Canvas> layers;
     public static ArrayList<String> layerStrings;
     private static ChoiceBox<String> layerSelector;
     private static Pane pane;
@@ -81,9 +81,11 @@ public class Main extends Application{
         // Opens pop up prompt for new layer creation
         newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
 
-        Button reorderLayers = new Button("Reorder Layers");
+        // Opens pop up prompt with options to edit layers
+        // When the popup is exited and selected layer is renamed, no layer will be selected
+        Button reorderLayers = new Button("Edit Layers");
         reorderLayers.setLayoutY(350);
-        reorderLayers.setOnAction(l -> setLayerStrings(ReorderLayersPopup.display()));
+        reorderLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
 
         // The group "root" now has previously added items in it
         root.getChildren().addAll(borderPane,
@@ -122,17 +124,21 @@ public class Main extends Application{
     }
 
     private void makeNewLayer(String layerName){
-        Canvas canvas = new Canvas(WIDTH, HEIGHT);
-        layerStrings.add(layerName);
-        layers.put(layerName, canvas);
+        if (!layerName.isEmpty()) {
+            Canvas canvas = new Canvas(WIDTH, HEIGHT);
+            layerStrings.add(layerName);
+            layers.put(layerName, canvas);
 
-        layerSelector.getItems().add(layerName);
-        layerSelector.setValue(layerName);
-        pane.getChildren().add(0,canvas);
-        logMouseMovement();
-        logMouseDragging();
-        logMouseClicking();
-        //System.out.println(layerStrings);
+            layerSelector.getItems().add(layerName);
+            // set selected value
+            layerSelector.setValue(layerName);
+            pane.getChildren().add(0,canvas);
+            logMouseMovement();
+            logMouseDragging();
+            logMouseClicking();
+            System.out.println(layerStrings);
+            //System.out.println(layerStrings);
+        }
     }
 
     private Canvas getCurrentLayer() {
@@ -218,5 +224,6 @@ public class Main extends Application{
         layerSelector.setItems(n);
         layerSelector.getSelectionModel().select(selected);
         //System.out.println(layerStrings);
+        System.out.println(layerStrings);
     }
 }
