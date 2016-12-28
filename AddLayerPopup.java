@@ -27,19 +27,24 @@ public class AddLayerPopup{
         Button submit = new Button("Make New Layer");
         submit.setLayoutY(75);
 
+        // Warning that layer names cannot be empty or repeat
+        final Text warning = new Text("Layer names cannot be blank or repeated");
+        warning.setFill(Color.RED);
+
         // Submit closes window
         submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                if (!layerName.getText().isEmpty()) {
-                    newLayerName = layerName.getText();
+                String name = layerName.getText().trim();
+                if (!name.isEmpty() && !Main.layerStrings.contains(name)) {
+                    newLayerName = name;
                     popupwindow.close();
                 }
             }
         });
 
         VBox layout= new VBox(10);
-        layout.getChildren().addAll(layerName, submit);
+        layout.getChildren().addAll(layerName, submit, warning);
         layout.setAlignment(Pos.CENTER);
         Scene scene= new Scene(layout, 300, 250);
         popupwindow.setScene(scene);
