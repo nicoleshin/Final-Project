@@ -50,8 +50,8 @@ public class EditLayersPopup {
         Label renameLabel = new Label("Enter a new name for the selected layer");
 
         // Warning that layer names cannot be empty or repeat
-        final Text warning = new Text("Layer names cannot be blank or repeated");
-        warning.setFill(Color.RED);
+        final Text layerNameWarning = new Text("Layer names cannot be blank or repeated");
+        layerNameWarning.setFill(Color.RED);
 
         // Setup buttons and labels to rename layers
         Button submitName = new Button("Rename");
@@ -62,14 +62,24 @@ public class EditLayersPopup {
             }
        });
 
+        // Setup buttons and labels to delete layers
+        Button deleteButton = new Button("Delete this layer");
+        deleteButton.setOnAction(l -> removeLayer());
+
+        // Warning that layer names cannot be empty or repeat
+        final Text atLeastOneWarning = new Text("You must have at least one layer");
+        atLeastOneWarning.setFill(Color.RED);
+
         VBox rightLayout = new VBox(10);
         rightLayout.getChildren().addAll(reorderLabel,
                 up,
                 down,
                 renameLabel,
+                layerNameWarning,
                 newName,
-                warning,
-                submitName);
+                submitName,
+                atLeastOneWarning,
+                deleteButton);
         rightLayout.setAlignment(Pos.CENTER);
 
         BorderPane borderPane = new BorderPane();
@@ -118,6 +128,19 @@ public class EditLayersPopup {
             Main.layers.remove(oldLayerName);
             // reselects the layer
             list.getSelectionModel().select(selectedIndex);
+            System.out.println(Main.layerStrings);
+            System.out.println(names);
+        }
+    }
+
+    private static void removeLayer() {
+        if (names.size() != 1) {
+            int selectedIndex = list.getSelectionModel().getSelectedIndex();
+            String nameToRemove = names.remove(selectedIndex);
+            // remove from pane
+            Main.pane.getChildren().remove(Main.layers.get(nameToRemove));
+            Main.layers.remove(nameToRemove);
+            Main.layerStrings.remove(nameToRemove);
         }
     }
 }

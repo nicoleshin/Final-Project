@@ -21,7 +21,7 @@ public class Main extends Application{
     public static HashMap<String, Canvas> layers;
     public static ArrayList<String> layerStrings;
     private static ChoiceBox<String> layerSelector;
-    private static Pane pane;
+    public static Pane pane;
     private static final ColorPicker colorPicker = new ColorPicker();
     private static final Slider lineWidth = new Slider(0,100,15);
     private static final Slider eraserLineWidth = new Slider(0,100,15);
@@ -216,14 +216,20 @@ public class Main extends Application{
     }
 
     private void setLayerStrings(ObservableList<String> n) {
+        layerStrings.clear();
         for (int i = n.size()-1; i > -1; i--) {
-            layerStrings.set(i, n.get(i));
+            layerStrings.add(n.get(n.size()-i-1));
             layers.get(n.get(i)).toFront();
         }
         String selected = layerSelector.getSelectionModel().getSelectedItem();
+        int selectedIndex = layerSelector.getSelectionModel().getSelectedIndex();
         layerSelector.setItems(n);
-        layerSelector.getSelectionModel().select(selected);
-        //System.out.println(layerStrings);
-        System.out.println(layerStrings);
+        if (n.contains(selected)) {
+            layerSelector.getSelectionModel().select(selected);
+        } else if (selectedIndex < n.size()) {
+            layerSelector.getSelectionModel().select(selectedIndex);
+        } else {
+            layerSelector.getSelectionModel().select(0);
+        }
     }
 }
