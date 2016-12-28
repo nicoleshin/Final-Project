@@ -27,13 +27,6 @@ public class AddLayerPopup{
         Button submit = new Button("Make New Layer");
         submit.setLayoutY(75);
 
-        VBox layout= new VBox(10);
-        layout.getChildren().addAll(layerName, submit);
-        layout.setAlignment(Pos.CENTER);
-        Scene scene= new Scene(layout, 300, 250);
-        popupwindow.setScene(scene);
-        popupwindow.showAndWait();
-
         // Submit closes window
         submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -44,6 +37,13 @@ public class AddLayerPopup{
                 }
             }
         });
+
+        VBox layout= new VBox(10);
+        layout.getChildren().addAll(layerName, submit);
+        layout.setAlignment(Pos.CENTER);
+        Scene scene= new Scene(layout, 300, 250);
+        popupwindow.setScene(scene);
+        popupwindow.showAndWait();
         return newLayerName;
     }
 
