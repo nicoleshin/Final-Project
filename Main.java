@@ -1,5 +1,6 @@
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.canvas.*;
@@ -44,10 +45,16 @@ public class Main extends Application{
         layers = new HashMap<String, Canvas>();
 
 
-        BorderPane borderPane = new BorderPane();
+        VBox leftToolbar = new VBox(10);
+        leftToolbar.setAlignment(Pos.TOP_LEFT);
+        leftToolbar.setPrefWidth(175);
         pane = new Pane();
+
+        BorderPane borderPane = new BorderPane();
         makeNewLayer("Layer1");
         borderPane.setCenter(pane);
+        borderPane.setLeft(leftToolbar);
+        borderPane.setMargin(leftToolbar, new Insets(10));
 
         // Add Color picker
         colorPicker.setValue(Color.BLACK);
@@ -83,20 +90,22 @@ public class Main extends Application{
 
         // Opens pop up prompt with options to edit layers
         // When the popup is exited and selected layer is renamed, no layer will be selected
-        Button reorderLayers = new Button("Edit Layers");
-        reorderLayers.setLayoutY(350);
-        reorderLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
+        Button editLayers = new Button("Edit Layers");
+        editLayers.setLayoutY(350);
+        editLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
 
         // The group "root" now has previously added items in it
-        root.getChildren().addAll(borderPane,
+        // ADD
+        leftToolbar.getChildren().addAll(
                 colorPicker,
-                newLayer,
-                lineWidth,
-                lineWidthLabel,
-                eraserLineWidth,
-                eraserLineWidthLabel,
                 layerSelector,
-                reorderLayers);
+                editLayers,
+                newLayer,
+                lineWidthLabel,
+                lineWidth,
+                eraserLineWidthLabel,
+                eraserLineWidth);
+        root.getChildren().addAll(borderPane);
         // The stage's scene is not the grouop root
         stage.setScene(new Scene(root));
         stage.show();
