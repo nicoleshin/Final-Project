@@ -2,13 +2,13 @@ import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.*;
 import javafx.scene.input.*;
-import javafx.event.*;
-import javafx.collections.*;
 import javafx.scene.input.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.*;
+import javafx.event.*;
+import javafx.collections.*;
 
 public class EditLayersPopup {
 
@@ -71,7 +71,8 @@ public class EditLayersPopup {
         atLeastOneWarning.setFill(Color.RED);
 
         VBox rightLayout = new VBox(10);
-        rightLayout.getChildren().addAll(reorderLabel,
+        rightLayout.getChildren().addAll(
+                reorderLabel,
                 up,
                 down,
                 renameLabel,
