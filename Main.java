@@ -167,14 +167,18 @@ public class Main extends Application{
             @Override
             public void handle(MouseEvent e) {
                 GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
-                //System.out.println(layerStrings.indexOf(layerSelector.getValue()));
-                if (e.isPrimaryButtonDown()) {
-                    gc.setLineCap(StrokeLineCap.ROUND);
-                    gc.setStroke(colorPicker.getValue());
-                    gc.setLineWidth(lineWidth.getValue());
-                    //gc.fillRect(e.getX() - 2, e.getY() - 2, 4, 4);     //Draw a rectangle at place of left-mouse-drag
-                    // Able to draw continuous lines instead of separated squares
-                    gc.strokeLine(mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY());
+                if (e.isAltDown() && e.isControlDown()){
+                    lineWidth.setValue(lineWidth.getValue() + (e.getX() - mouseLog.get(0)));
+                } else {
+                    //System.out.println(layerStrings.indexOf(layerSelector.getValue()));
+                    if (e.isPrimaryButtonDown()) {
+                        gc.setLineCap(StrokeLineCap.ROUND);
+                        gc.setStroke(colorPicker.getValue());
+                        gc.setLineWidth(lineWidth.getValue());
+                        //gc.fillRect(e.getX() - 2, e.getY() - 2, 4, 4);     //Draw a rectangle at place of left-mouse-drag
+                        // Able to draw continuous lines instead of separated squares
+                        gc.strokeLine(mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY());
+                    }
                 }
                 if (e.isSecondaryButtonDown()){
                     //gc.clearRect(e.getX() - 2, e.getY() - 2, 4, 4);    //Erase a rectangle at place of right-mouse-drag
