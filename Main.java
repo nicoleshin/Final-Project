@@ -39,7 +39,6 @@ public class Main extends Application{
         // Choice selector for layers
         layerSelector = new ChoiceBox<String>();
         layerSelector.setTooltip(new Tooltip("Select a Layer"));
-        layerSelector.setLayoutY(75);
 
         layerStrings = new ArrayList<String>();
         layers = new HashMap<String, Canvas>();
@@ -68,9 +67,7 @@ public class Main extends Application{
         lineWidth.setMajorTickUnit(10);
         lineWidth.setMinorTickCount(5);
         lineWidth.setBlockIncrement(1);
-        lineWidth.setLayoutY(150);
         final Label lineWidthLabel = new Label("Brush Width");
-        lineWidthLabel.setLayoutY(125);
 
         // Setup for eraser size
         eraserLineWidth.setShowTickLabels(true);
@@ -78,20 +75,16 @@ public class Main extends Application{
         eraserLineWidth.setMajorTickUnit(10);
         eraserLineWidth.setMinorTickCount(5);
         eraserLineWidth.setBlockIncrement(1);
-        eraserLineWidth.setLayoutY(250);
         final Label eraserLineWidthLabel = new Label("Eraser Width");
-        eraserLineWidthLabel.setLayoutY(225);
 
         // Setup button for making new layer
         Button newLayer = new Button("Add new Layer");
-        newLayer.setLayoutY(50);
         // Opens pop up prompt for new layer creation
         newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
 
         // Opens pop up prompt with options to edit layers
         // When the popup is exited and selected layer is renamed, no layer will be selected
         Button editLayers = new Button("Edit Layers");
-        editLayers.setLayoutY(350);
         editLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
 
         // The group "root" now has previously added items in it
