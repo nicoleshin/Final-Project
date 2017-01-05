@@ -80,12 +80,24 @@ public class Main extends Application{
         // Setup button for making new layer
         Button newLayer = new Button("Add new Layer");
         // Opens pop up prompt for new layer creation
-        newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
+        //newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
+        newLayer.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent a) {
+                makeNewLayer(AddLayerPopup.display());
+            }
+        });
 
         // Opens pop up prompt with options to edit layers
         // When the popup is exited and selected layer is renamed, no layer will be selected
         Button editLayers = new Button("Edit Layers");
-        editLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
+        //editLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
+        editLayers.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent a) {
+                setLayerStrings(EditLayersPopup.display());
+            }
+        });
 
         // The group "root" now has previously added items in it
         // ADD
