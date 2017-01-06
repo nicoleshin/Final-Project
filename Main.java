@@ -1,5 +1,11 @@
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.*;
 import javafx.application.Application;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
@@ -12,12 +18,13 @@ import javafx.scene.image.*;
 import javafx.event.*;
 import javafx.beans.*;
 import javafx.collections.*;
-import java.util.*;
+import javax.imageio.ImageIO;
+import javafx.embed.swing.SwingFXUtils;
 
 public class Main extends Application{
 
-    private static final double WIDTH = 1000.0;
-    private static final double HEIGHT = 700.0;
+    private static final int WIDTH = 1000;
+    private static final int HEIGHT = 700;
     private static ArrayList<Double> mouseLog;
     public static HashMap<String, Canvas> layers;
     public static ArrayList<String> layerStrings;
@@ -80,7 +87,8 @@ public class Main extends Application{
         // Setup button for making new layer
         Button newLayer = new Button("Add new Layer");
         // Opens pop up prompt for new layer creation
-        //newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
+        // Only works in java 8:
+        // newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
         newLayer.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent a) {
@@ -91,11 +99,38 @@ public class Main extends Application{
         // Opens pop up prompt with options to edit layers
         // When the popup is exited and selected layer is renamed, no layer will be selected
         Button editLayers = new Button("Edit Layers");
-        //editLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
+        // Only works in java 8:
+        // editLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
         editLayers.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent a) {
                 setLayerStrings(EditLayersPopup.display());
+            }
+        });
+
+        Button buttonSave = new Button("Save");
+        buttonSave.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                FileChooser fileChooser = new FileChooser();
+                // Set extension filter
+                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+                fileChooser.getExtensionFilters().add(extFilter);
+                //Show save file dialog
+                File file = fileChooser.showSaveDialog(stage);
+
+                if(file != null){
+                    try {
+                        WritableImage writableImage = new WritableImage(WIDTH, HEIGHT);
+                        // Right now, only saves the current layer
+                        getCurrentLayer().snapshot(null, writableImage);
+                        RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+                        ImageIO.write(renderedImage, "png", file);
+                    } catch (IOException ex) {
+                        //Compile error:
+                        //Logger.getLogger(JavaFX_DrawOnCanvas.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
             }
         });
 
@@ -109,7 +144,8 @@ public class Main extends Application{
                 lineWidthLabel,
                 lineWidth,
                 eraserLineWidthLabel,
-                eraserLineWidth);
+                eraserLineWidth,
+                buttonSave);
         root.getChildren().addAll(borderPane);
         // The stage's scene is not the grouop root
         stage.setScene(new Scene(root));
@@ -218,7 +254,7 @@ public class Main extends Application{
                     reset(gc);
                 }
                 if (t.isAltDown()) {
-                    WritableImage canvasSnapshot = getCurrentLayer().snapshot(new SnapshotParameters(), new WritableImage((int)(WIDTH), (int)(HEIGHT)));
+                    WritableImage canvasSnapshot = getCurrentLayer().snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
                     // Chooses color from screen
                     colorPicker.setValue(canvasSnapshot.getPixelReader().getColor((int)(t.getX()), (int)(t.getY())));
                 }
