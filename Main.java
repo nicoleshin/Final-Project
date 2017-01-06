@@ -33,6 +33,7 @@ public class Main extends Application{
     private static final ColorPicker colorPicker = new ColorPicker();
     private static final Slider lineWidth = new Slider(0,100,15);
     private static final Slider eraserLineWidth = new Slider(0,100,15);
+    private String tool;
 
     public static void main(String[] args) {
         launch(args);
@@ -42,7 +43,7 @@ public class Main extends Application{
     public void start(Stage stage) {
         stage.setTitle("Basic Paint Program");
         Group root = new Group();
-
+	
         // Choice selector for layers
         layerSelector = new ChoiceBox<String>();
         layerSelector.setTooltip(new Tooltip("Select a Layer"));
@@ -64,10 +65,10 @@ public class Main extends Application{
 
         // Add Color picker
         colorPicker.setValue(Color.BLACK);
-
+	
         // Setup mouse-action log
         mouseLog = new ArrayList<Double>(20);
-
+	
         // Setup slider for brush size
         lineWidth.setShowTickLabels(true);
         lineWidth.setShowTickMarks(true);
@@ -90,52 +91,75 @@ public class Main extends Application{
         // Only works in java 8:
         // newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
         newLayer.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent a) {
-                makeNewLayer(AddLayerPopup.display());
-            }
-        });
-
+		@Override
+		    public void handle(ActionEvent a) {
+		    makeNewLayer(AddLayerPopup.display());
+		}
+	    });
+	
         // Opens pop up prompt with options to edit layers
         // When the popup is exited and selected layer is renamed, no layer will be selected
         Button editLayers = new Button("Edit Layers");
         // Only works in java 8:
         // editLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
         editLayers.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent a) {
-                setLayerStrings(EditLayersPopup.display());
-            }
-        });
-
+		@Override
+		    public void handle(ActionEvent a) {
+		    setLayerStrings(EditLayersPopup.display());
+		}
+	    });
+	
         Button buttonSave = new Button("Save");
         buttonSave.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                FileChooser fileChooser = new FileChooser();
-                // Set extension filter
-                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
-                fileChooser.getExtensionFilters().add(extFilter);
-                //Show save file dialog
-                File file = fileChooser.showSaveDialog(stage);
+		@Override
+		    public void handle(ActionEvent t) {
+		    FileChooser fileChooser = new FileChooser();
+		    // Set extension filter
+		    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+		    fileChooser.getExtensionFilters().add(extFilter);
+		    //Show save file dialog
+		    File file = fileChooser.showSaveDialog(stage);
+		    
+		    if(file != null){
+			try {
+			    WritableImage writableImage = new WritableImage(WIDTH, HEIGHT);
+			    // Right now, only saves the current layer
+			    pane.snapshot(null, writableImage);
+			    RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+			    ImageIO.write(renderedImage, "png", file);
+			} catch (IOException ex) {
+			    //Compile error:
+			    //Logger.getLogger(JavaFX_DrawOnCanvas.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		    }
+		}
+	    });
+	
+	// //button to set tool to "brush"
+	// Button brushButton = new Button("Brush");
+	// brushButton.setLayoutY(400);
+	// brushButton.setOnAction(new EventHandler<ActionEvent>() {
+		
+	// 	@Override
+	// 	    public void handle(ActionEvent t) {
+	// 	    tool = "brush";
+	// 	}
+	//     });
+	
+	// //Button to set tool to "eraser"
+	// Button eraserButton = new Button("Eraser");
+	// eraserButton.setLayoutY(400);
+	// eraserButton.setLayoutX(50);
+	// eraserButton.setOnAction(new EventHandler<ActionEvent>() {
+		
+	// 	@Override
+	// 	    public void handle(ActionEvent t) {
+	// 	    tool = "eraser";
+	// 	}
+	//     });
 
-                if(file != null){
-                    try {
-                        WritableImage writableImage = new WritableImage(WIDTH, HEIGHT);
-                        // Right now, only saves the current layer
-                        getCurrentLayer().snapshot(null, writableImage);
-                        RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
-                        ImageIO.write(renderedImage, "png", file);
-                    } catch (IOException ex) {
-                        //Compile error:
-                        //Logger.getLogger(JavaFX_DrawOnCanvas.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        });
-
-        // The group "root" now has previously added items in it
-        // ADD
+        //The group "root" now has previously added items in it
+        //ADD
         leftToolbar.getChildren().addAll(
                 colorPicker,
                 layerSelector,
@@ -145,7 +169,10 @@ public class Main extends Application{
                 lineWidth,
                 eraserLineWidthLabel,
                 eraserLineWidth,
-                buttonSave);
+                buttonSave,
+		// brushButton,
+		// eraserButton
+					 );
         root.getChildren().addAll(borderPane);
         // The stage's scene is not the grouop root
         stage.setScene(new Scene(root));
