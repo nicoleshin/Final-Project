@@ -1,1 +1,2 @@
-# Final-Project
+# MARS
+## Minimalistic Art Rendering System
