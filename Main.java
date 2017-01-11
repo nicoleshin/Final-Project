@@ -30,6 +30,7 @@ public class Main extends Application{
     public static ArrayList<String> layerStrings;
     private static ChoiceBox<String> layerSelector;
     public static Pane pane;
+    private static Canvas cursorCanvas;
     private static final ColorPicker colorPicker = new ColorPicker();
     private static final Slider lineWidth = new Slider(0,100,15);
     private static final Slider eraserLineWidth = new Slider(0,100,15);
@@ -51,14 +52,22 @@ public class Main extends Application{
         layerStrings = new ArrayList<String>();
         layers = new HashMap<String, Canvas>();
 
-
         VBox leftToolbar = new VBox(10);
         leftToolbar.setAlignment(Pos.TOP_LEFT);
         leftToolbar.setPrefWidth(175);
         pane = new Pane();
 
-        BorderPane borderPane = new BorderPane();
+        // Make uninteractable layer for cursor
+        // Add to layers and layerStrings, make sure no conflicts, cursor layer
+        // should always be first in layerStrings
+        cursorCanvas = new Canvas(WIDTH, HEIGHT);
+        pane.getChildren().add(cursorCanvas);
+        logMouseMovement();
+        logMouseDragging();
+        logMouseClicking();
+
         makeNewLayer("Layer1");
+        BorderPane borderPane = new BorderPane();
         borderPane.setCenter(pane);
         borderPane.setLeft(leftToolbar);
         borderPane.setMargin(leftToolbar, new Insets(10));
@@ -214,7 +223,9 @@ public class Main extends Application{
             logMouseDragging();
             logMouseClicking();
             System.out.println(layerStrings);
-            //System.out.println(layerStrings);
+            System.out.println(pane.getChildren());
+
+            cursorCanvas.toFront();
         }
     }
 
@@ -222,12 +233,24 @@ public class Main extends Application{
         return layers.get(layerSelector.getValue());
     }
 
+    private void cursorUpdate(MouseEvent e) {
+        GraphicsContext cursorGC = cursorCanvas.getGraphicsContext2D();
+        double radius = lineWidth.getValue();
+        reset(cursorGC);
+        cursorGC.setLineCap(StrokeLineCap.ROUND);
+        cursorGC.setStroke(Color.DARKGRAY);
+        //cursorGC.setLineWidth(lineWidth.getValue());
+        cursorGC.setLineWidth(1);
+        cursorGC.strokeOval(e.getX()-radius/2, e.getY()-radius/2, radius, radius);
+    }
+
     private void logMouseMovement() {
-        getCurrentLayer().addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
+        cursorCanvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
             @Override
-            public void handle(MouseEvent a) {
-                mouseLog.add(0, a.getY());
-                mouseLog.add(0, a.getX());
+            public void handle(MouseEvent e) {
+                cursorUpdate(e);
+                mouseLog.add(0, e.getY());
+                mouseLog.add(0, e.getX());
                 if (mouseLog.size() > 10) {
                     mouseLog.remove(10);
                     mouseLog.remove(10);
@@ -238,9 +261,10 @@ public class Main extends Application{
     }
 
     private void logMouseDragging() {
-        getCurrentLayer().addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
+        cursorCanvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
+                cursorUpdate(e);
                 GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
                 if (e.isAltDown() && e.isControlDown()){
                     lineWidth.setValue(lineWidth.getValue() + (e.getX() - mouseLog.get(0)));
@@ -250,7 +274,6 @@ public class Main extends Application{
                         gc.setLineCap(StrokeLineCap.ROUND);
                         gc.setStroke(colorPicker.getValue());
                         gc.setLineWidth(lineWidth.getValue());
-                        //gc.fillRect(e.getX() - 2, e.getY() - 2, 4, 4);     //Draw a rectangle at place of left-mouse-drag
                         // Able to draw continuous lines instead of separated squares
                         gc.strokeLine(mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY());
                     }
@@ -272,21 +295,22 @@ public class Main extends Application{
     }
 
     private void logMouseClicking() {
-        getCurrentLayer().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+        cursorCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
             @Override
-            public void handle(MouseEvent t) {
+            public void handle(MouseEvent e) {
+                cursorUpdate(e);
                 GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
-                if ((t.getClickCount() >1) && (t.getButton() == MouseButton.SECONDARY)) {
+                if ((e.getClickCount() >1) && (e.getButton() == MouseButton.SECONDARY)) {
                     // Method "reset" clears the screen after a double-right-click
                     reset(gc);
                 }
-                if (t.isAltDown()) {
+                if (e.isAltDown()) {
                     WritableImage canvasSnapshot = getCurrentLayer().snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
                     // Chooses color from screen
-                    colorPicker.setValue(canvasSnapshot.getPixelReader().getColor((int)(t.getX()), (int)(t.getY())));
+                    colorPicker.setValue(canvasSnapshot.getPixelReader().getColor((int)(e.getX()), (int)(e.getY())));
                 }
-                mouseLog.add(0, t.getY());
-                mouseLog.add(0, t.getX());
+                mouseLog.add(0, e.getY());
+                mouseLog.add(0, e.getX());
                 if (mouseLog.size() > 10) {
                     mouseLog.remove(10);
                     mouseLog.remove(10);
@@ -312,5 +336,6 @@ public class Main extends Application{
         } else {
             layerSelector.getSelectionModel().select(0);
         }
+        cursorCanvas.toFront();
     }
 }
