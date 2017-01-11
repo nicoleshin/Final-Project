@@ -132,8 +132,13 @@ public class Main extends Application{
                 if(file != null){
                     try {
                         WritableImage writableImage = new WritableImage(WIDTH, HEIGHT);
-                        // Right now, only saves the current layer
+                        // Removes cursor canvas from the pane so the cursor
+                        // does not show up in the picture
+                        pane.getChildren().remove(layerStrings.size());
                         pane.snapshot(null, writableImage);
+                        // The cursor canvas is added back and brought to the front
+                        pane.getChildren().add(cursorCanvas);
+                        cursorCanvas.toFront();
                         RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
                         ImageIO.write(renderedImage, "png", file);
                     } catch (IOException ex) {
