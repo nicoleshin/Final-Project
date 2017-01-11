@@ -309,7 +309,7 @@ public class Main extends Application{
                     // Method "reset" clears the screen after a double-right-click
                     reset(gc);
                 }
-                if (e.isAltDown()) {
+                if (e.isAltDown() && !e.isControlDown()) {
                     WritableImage canvasSnapshot = getCurrentLayer().snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
                     // Chooses color from screen
                     colorPicker.setValue(canvasSnapshot.getPixelReader().getColor((int)(e.getX()), (int)(e.getY())));
