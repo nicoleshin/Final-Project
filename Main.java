@@ -144,8 +144,8 @@ public class Main extends Application{
                         RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
                         ImageIO.write(renderedImage, "png", file);
                     } catch (IOException ex) {
-                        //Compile error:
-                        //Logger.getLogger(JavaFX_DrawOnCanvas.class.getName()).log(Level.SEVERE, null, ex);
+                        //Compile error;
+			Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -285,7 +285,15 @@ public class Main extends Application{
                 } else {
                     //System.out.println(layerStrings.indexOf(layerSelector.getValue()));
                     if (e.isPrimaryButtonDown()) {
-                        gc.setLineCap(StrokeLineCap.ROUND);
+			if ((blendMode.getValue() == BlendMode.SRC_OVER)
+			    || (blendMode.getValue() == BlendMode.SRC_ATOP)
+			    || (blendMode.getValue() == BlendMode.RED)
+			    || (blendMode.getValue() == BlendMode.BLUE)
+			    || (blendMode.getValue() == BlendMode.GREEN)){
+			    gc.setLineCap(StrokeLineCap.ROUND);
+			} else {
+			    gc.setLineCap(StrokeLineCap.BUTT);
+			}
                         gc.setStroke(colorPicker.getValue());
                         gc.setLineWidth(lineWidth.getValue());
 			gc.setGlobalBlendMode(blendMode.getValue());
