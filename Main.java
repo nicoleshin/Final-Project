@@ -208,9 +208,6 @@ public class Main extends Application{
             // set selected value
             layerSelector.setValue(layerName);
             pane.getChildren().add(0,canvas);
-            logMouseMovement();
-            logMouseDragging();
-            logMouseClicking();
             System.out.println(layerStrings);
             System.out.println(pane.getChildren());
 
@@ -228,7 +225,6 @@ public class Main extends Application{
         reset(cursorGC);
         cursorGC.setLineCap(StrokeLineCap.ROUND);
         cursorGC.setStroke(Color.DARKGRAY);
-        //cursorGC.setLineWidth(lineWidth.getValue());
         cursorGC.setLineWidth(1);
         cursorGC.strokeOval(e.getX()-radius/2, e.getY()-radius/2, radius, radius);
     }
