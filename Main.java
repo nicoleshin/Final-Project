@@ -30,11 +30,12 @@ public class Main extends Application{
     public static HashMap<String, Canvas> layers;
     public static ArrayList<String> layerStrings;
     private static ChoiceBox<String> layerSelector;
+    private static ListView<String> toolListDisplay;
+    private static final String[] drawingTools = {"Brush","Eraser"};
     public static Pane pane;
     private static Canvas cursorCanvas;
     private static final ColorPicker colorPicker = new ColorPicker();
     private static final Slider lineWidth = new Slider(0,100,15);
-    private static final Slider eraserLineWidth = new Slider(0,100,15);
     private String tool;
     private static ChoiceBox<BlendMode> blendMode;
 
@@ -88,14 +89,6 @@ public class Main extends Application{
         lineWidth.setBlockIncrement(1);
         final Label lineWidthLabel = new Label("Brush Width");
 
-        // Setup for eraser size
-        eraserLineWidth.setShowTickLabels(true);
-        eraserLineWidth.setShowTickMarks(true);
-        eraserLineWidth.setMajorTickUnit(10);
-        eraserLineWidth.setMinorTickCount(5);
-        eraserLineWidth.setBlockIncrement(1);
-        final Label eraserLineWidthLabel = new Label("Eraser Width");
-
         // Setup button for making new layer
         Button newLayer = new Button("Add new Layer");
         // Opens pop up prompt for new layer creation
@@ -145,40 +138,25 @@ public class Main extends Application{
                         ImageIO.write(renderedImage, "png", file);
                     } catch (IOException ex) {
                         //Compile error;
-			Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
+                        Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
                     }
                 }
             }
         });
 
-        // //button to set tool to "brush"
-        // Button brushButton = new Button("Brush");
-        // brushButton.setLayoutY(400);
-        // brushButton.setOnAction(new EventHandler<ActionEvent>() {
+        // Setup list for drawing tools
+        toolListDisplay = new ListView<String>();
+        ObservableList<String> observableToolList = FXCollections.observableArrayList(drawingTools);
+        toolListDisplay.setPrefWidth(200);
+        toolListDisplay.setPrefHeight(200);
+        toolListDisplay.setItems(observableToolList);
+        toolListDisplay.getSelectionModel().select(0);
 
-        // 	@Override
-        // 	    public void handle(ActionEvent t) {
-        // 	    tool = "brush";
-        // 	}
-        //     });
-
-        // //Button to set tool to "eraser"
-        // Button eraserButton = new Button("Eraser");
-        // eraserButton.setLayoutY(400);
-        // eraserButton.setLayoutX(50);
-        // eraserButton.setOnAction(new EventHandler<ActionEvent>() {
-
-        // 	@Override
-        // 	    public void handle(ActionEvent t) {
-        // 	    tool = "eraser";
-        // 	}
-        //     });
-
-	//Choose a blendmode for the layer you're on
-	blendMode = new ChoiceBox<BlendMode>();
-	blendMode.setTooltip(new Tooltip("Select a Layer Blending Mode!"));
-	blendMode.getItems().addAll(BlendMode.ADD, BlendMode.BLUE, BlendMode.COLOR_BURN, BlendMode.COLOR_DODGE, BlendMode.DARKEN, BlendMode.DIFFERENCE, BlendMode.EXCLUSION, BlendMode.GREEN, BlendMode.HARD_LIGHT, BlendMode.LIGHTEN, BlendMode.MULTIPLY, BlendMode.OVERLAY, BlendMode.RED, BlendMode.SCREEN, BlendMode.SOFT_LIGHT, BlendMode.SRC_ATOP, BlendMode.SRC_OVER);
-	blendMode.setValue(BlendMode.SRC_OVER);
+        //Choose a blendmode for the layer you're on
+        blendMode = new ChoiceBox<BlendMode>();
+        blendMode.setTooltip(new Tooltip("Select a Layer Blending Mode!"));
+        blendMode.getItems().addAll(BlendMode.ADD, BlendMode.BLUE, BlendMode.COLOR_BURN, BlendMode.COLOR_DODGE, BlendMode.DARKEN, BlendMode.DIFFERENCE, BlendMode.EXCLUSION, BlendMode.GREEN, BlendMode.HARD_LIGHT, BlendMode.LIGHTEN, BlendMode.MULTIPLY, BlendMode.OVERLAY, BlendMode.RED, BlendMode.SCREEN, BlendMode.SOFT_LIGHT, BlendMode.SRC_ATOP, BlendMode.SRC_OVER);
+        blendMode.setValue(BlendMode.SRC_OVER);
 
         //The group "root" now has previously added items in it
         //ADD
@@ -189,15 +167,12 @@ public class Main extends Application{
                 newLayer,
                 lineWidthLabel,
                 lineWidth,
-                eraserLineWidthLabel,
-                eraserLineWidth,
+                toolListDisplay,
                 buttonSave,
-		blendMode
+                blendMode
         );
-                // brushButton,
-                // eraserButton
         root.getChildren().addAll(borderPane);
-        // The stage's scene is not the grouop root
+        // The stage's scene is not the group root
         stage.setScene(new Scene(root));
         stage.show();
     }
@@ -285,27 +260,22 @@ public class Main extends Application{
                 } else {
                     //System.out.println(layerStrings.indexOf(layerSelector.getValue()));
                     if (e.isPrimaryButtonDown()) {
-			if ((blendMode.getValue() == BlendMode.SRC_OVER)
-			    || (blendMode.getValue() == BlendMode.SRC_ATOP)
-			    || (blendMode.getValue() == BlendMode.RED)
-			    || (blendMode.getValue() == BlendMode.BLUE)
-			    || (blendMode.getValue() == BlendMode.GREEN)){
-			    gc.setLineCap(StrokeLineCap.ROUND);
-			} else {
-			    gc.setLineCap(StrokeLineCap.BUTT);
-			}
-                        gc.setStroke(colorPicker.getValue());
-                        gc.setLineWidth(lineWidth.getValue());
-			gc.setGlobalBlendMode(blendMode.getValue());
-                        // Able to draw continuous lines instead of separated squares
-                        gc.strokeLine(mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY());
+                        if ((blendMode.getValue() == BlendMode.SRC_OVER)
+                            || (blendMode.getValue() == BlendMode.SRC_ATOP)
+                            || (blendMode.getValue() == BlendMode.RED)
+                            || (blendMode.getValue() == BlendMode.BLUE)
+                            || (blendMode.getValue() == BlendMode.GREEN)){
+                            gc.setLineCap(StrokeLineCap.ROUND);
+                        } else {
+                            gc.setLineCap(StrokeLineCap.BUTT);
+                        }
+                        gc.setGlobalBlendMode(blendMode.getValue());
+                        // Makes stroke based on selected tool
+                        createStroke(gc, e);
                     }
                 }
                 if (e.isSecondaryButtonDown()){
-                    //gc.clearRect(e.getX() - 2, e.getY() - 2, 4, 4);    //Erase a rectangle at place of right-mouse-drag
-                    // Able to erase in continuous lines instead of separted squares
-		    gc.setGlobalBlendMode(BlendMode.SRC_OVER);
-                    eraseLine(gc, mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY(),eraserLineWidth.getValue());
+                    gc.setGlobalBlendMode(BlendMode.SRC_OVER);
                 }
                 mouseLog.add(0, e.getY());
                 mouseLog.add(0, e.getX());
@@ -316,6 +286,23 @@ public class Main extends Application{
                 //System.out.println(mouseLog.toString());
             }
         });
+    }
+
+    private void createStroke(GraphicsContext gc, MouseEvent e) {
+        // More tools to be added later
+        double width = lineWidth.getValue();
+        gc.setLineWidth(width);
+        String selectedTool = toolListDisplay.getSelectionModel().getSelectedItem();
+        if (selectedTool.equals("Brush")) {
+            gc.setStroke(colorPicker.getValue());
+            // Able to draw continuous lines instead of separated squares
+            gc.strokeLine(mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY());
+        } else if (selectedTool.equals("Eraser")) {
+            eraseLine(gc, mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY(), width);
+        } else {
+            // for debugging
+            System.out.println(selectedTool);
+        }
     }
 
     private void logMouseClicking() {
