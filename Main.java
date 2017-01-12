@@ -20,6 +20,7 @@ import javafx.beans.*;
 import javafx.collections.*;
 import javax.imageio.ImageIO;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.effect.*;
 
 public class Main extends Application{
 
@@ -35,6 +36,7 @@ public class Main extends Application{
     private static final Slider lineWidth = new Slider(0,100,15);
     private static final Slider eraserLineWidth = new Slider(0,100,15);
     private String tool;
+    private static ChoiceBox<BlendMode> blendMode;
 
     public static void main(String[] args) {
         launch(args);
@@ -172,6 +174,12 @@ public class Main extends Application{
         // 	}
         //     });
 
+	//Choose a blendmode for the layer you're on
+	blendMode = new ChoiceBox<BlendMode>();
+	blendMode.setTooltip(new Tooltip("Select a Layer Blending Mode!"));
+	blendMode.getItems().addAll(BlendMode.ADD, BlendMode.BLUE, BlendMode.COLOR_BURN, BlendMode.COLOR_DODGE, BlendMode.DARKEN, BlendMode.DIFFERENCE, BlendMode.EXCLUSION, BlendMode.GREEN, BlendMode.HARD_LIGHT, BlendMode.LIGHTEN, BlendMode.MULTIPLY, BlendMode.OVERLAY, BlendMode.RED, BlendMode.SCREEN, BlendMode.SOFT_LIGHT, BlendMode.SRC_ATOP, BlendMode.SRC_OVER);
+	blendMode.setValue(BlendMode.SRC_OVER);
+
         //The group "root" now has previously added items in it
         //ADD
         leftToolbar.getChildren().addAll(
@@ -183,7 +191,8 @@ public class Main extends Application{
                 lineWidth,
                 eraserLineWidthLabel,
                 eraserLineWidth,
-                buttonSave
+                buttonSave,
+		blendMode
         );
                 // brushButton,
                 // eraserButton
@@ -279,6 +288,7 @@ public class Main extends Application{
                         gc.setLineCap(StrokeLineCap.ROUND);
                         gc.setStroke(colorPicker.getValue());
                         gc.setLineWidth(lineWidth.getValue());
+			gc.setGlobalBlendMode(blendMode.getValue());
                         // Able to draw continuous lines instead of separated squares
                         gc.strokeLine(mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY());
                     }
@@ -286,6 +296,7 @@ public class Main extends Application{
                 if (e.isSecondaryButtonDown()){
                     //gc.clearRect(e.getX() - 2, e.getY() - 2, 4, 4);    //Erase a rectangle at place of right-mouse-drag
                     // Able to erase in continuous lines instead of separted squares
+		    gc.setGlobalBlendMode(BlendMode.SRC_OVER);
                     eraseLine(gc, mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY(),eraserLineWidth.getValue());
                 }
                 mouseLog.add(0, e.getY());
@@ -310,7 +321,7 @@ public class Main extends Application{
                     reset(gc);
                 }
                 if (e.isAltDown() && !e.isControlDown()) {
-                    WritableImage canvasSnapshot = getCurrentLayer().snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
+                    WritableImage canvasSnapshot = pane.snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
                     // Chooses color from screen
                     colorPicker.setValue(canvasSnapshot.getPixelReader().getColor((int)(e.getX()), (int)(e.getY())));
                 }
