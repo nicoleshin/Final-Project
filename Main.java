@@ -243,7 +243,7 @@ public class Main extends Application {
     private void eraseLine(GraphicsContext gc, double fromX, double fromY, double toX, double toY, double eraserSize){
         double Xincrement = (toX - fromX) / 40;
         double Yincrement = (toY - fromY) / 40;
-        while (!(closeEnough(toX, fromX, 1))){
+        while (!(closeEnough(toX, fromX, toY, fromY, 1))){
             gc.clearRect(fromX - (eraserSize / 2), fromY - (eraserSize / 2), eraserSize, eraserSize);
             fromX += Xincrement;
             fromY += Yincrement;
@@ -251,8 +251,8 @@ public class Main extends Application {
     }
 
     // Helping the erase-a-line
-    private boolean closeEnough(double X1, double X2, double Closeness){
-        return (((X1 - X2) < (Closeness)) && ((X1 - X2) > (0.0 - Closeness)));
+    private boolean closeEnough(double X1, double X2, double Y1, double Y2, double Closeness){
+        return ((((X1 - X2) < (Closeness)) && ((X1 - X2) > (0.0 - Closeness))) && (((Y1 - Y2) < (Closeness)) && ((Y1 - Y2) > (0.0 - Closeness))));
     }
 
     private void makeNewLayer(String layerName){
