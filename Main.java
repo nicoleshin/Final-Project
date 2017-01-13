@@ -22,7 +22,7 @@ import javax.imageio.ImageIO;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.effect.*;
 
-public class Main extends Application{
+public class Main extends Application {
 
     private static final int WIDTH = 1000;
     private static final int HEIGHT = 700;
@@ -36,7 +36,6 @@ public class Main extends Application{
     private static Canvas cursorCanvas;
     private static final ColorPicker colorPicker = new ColorPicker();
     private static final Slider lineWidth = new Slider(0,100,15);
-    private String tool;
     private static ChoiceBox<BlendMode> blendMode;
 
     public static void main(String[] args) {
@@ -87,7 +86,6 @@ public class Main extends Application{
         lineWidth.setMajorTickUnit(10);
         lineWidth.setMinorTickCount(5);
         lineWidth.setBlockIncrement(1);
-        final Label lineWidthLabel = new Label("Brush Width");
 
         // Setup button for making new layer
         Button newLayer = new Button("Add new Layer");
@@ -158,15 +156,24 @@ public class Main extends Application{
         blendMode.getItems().addAll(BlendMode.ADD, BlendMode.BLUE, BlendMode.COLOR_BURN, BlendMode.COLOR_DODGE, BlendMode.DARKEN, BlendMode.DIFFERENCE, BlendMode.EXCLUSION, BlendMode.GREEN, BlendMode.HARD_LIGHT, BlendMode.LIGHTEN, BlendMode.MULTIPLY, BlendMode.OVERLAY, BlendMode.RED, BlendMode.SCREEN, BlendMode.SOFT_LIGHT, BlendMode.SRC_ATOP, BlendMode.SRC_OVER);
         blendMode.setValue(BlendMode.SRC_OVER);
 
+        // Labels
+        final Label colorPickerLabel = new Label("Color Selection");
+        final Label layerSelectionLabel = new Label("Layer Selector");
+        final Label lineWidthLabel = new Label("Brush Width");
+        final Label toolSelectionLabel = new Label("Tool Selection");
+
         //The group "root" now has previously added items in it
         //ADD
         leftToolbar.getChildren().addAll(
+                colorPickerLabel,
                 colorPicker,
+                layerSelectionLabel,
                 layerSelector,
                 editLayers,
                 newLayer,
                 lineWidthLabel,
                 lineWidth,
+                toolSelectionLabel,
                 toolListDisplay,
                 buttonSave,
                 blendMode
