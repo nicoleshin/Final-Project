@@ -22,7 +22,7 @@ import javax.imageio.ImageIO;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.effect.*;
 
-public class Main extends Application{
+public class Main extends Application {
 
     private static final int WIDTH = 1000;
     private static final int HEIGHT = 700;
@@ -37,7 +37,6 @@ public class Main extends Application{
     private static Canvas cursorCanvas;
     private static final ColorPicker colorPicker = new ColorPicker();
     private static final Slider lineWidth = new Slider(0,100,15);
-    private String tool;
     private static ChoiceBox<BlendMode> blendMode;
     public static ArrayList<Image> toUndos;
     public static ArrayList<Image> toRedos;
@@ -109,7 +108,10 @@ public class Main extends Application{
         newLayer.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent a) {
-                makeNewLayer(AddLayerPopup.display());
+                String name = AddLayerPopup.display();
+                if (!name.isEmpty()) {
+                    makeNewLayer(name);
+                }
             }
         });
 
@@ -170,15 +172,24 @@ public class Main extends Application{
         blendMode.getItems().addAll(BlendMode.ADD, BlendMode.BLUE, BlendMode.COLOR_BURN, BlendMode.COLOR_DODGE, BlendMode.DARKEN, BlendMode.DIFFERENCE, BlendMode.EXCLUSION, BlendMode.GREEN, BlendMode.HARD_LIGHT, BlendMode.LIGHTEN, BlendMode.MULTIPLY, BlendMode.OVERLAY, BlendMode.RED, BlendMode.SCREEN, BlendMode.SOFT_LIGHT, BlendMode.SRC_ATOP, BlendMode.SRC_OVER);
         blendMode.setValue(BlendMode.SRC_OVER);
 
+        // Labels
+        final Label colorPickerLabel = new Label("Color Selection");
+        final Label layerSelectionLabel = new Label("Layer Selector");
+        final Label lineWidthLabel = new Label("Brush Width");
+        final Label toolSelectionLabel = new Label("Tool Selection");
+
         //The group "root" now has previously added items in it
         //ADD
         leftToolbar.getChildren().addAll(
+                colorPickerLabel,
                 colorPicker,
+                layerSelectionLabel,
                 layerSelector,
                 editLayers,
                 newLayer,
                 lineWidthLabel,
                 lineWidth,
+                toolSelectionLabel,
                 toolListDisplay,
                 buttonSave,
                 blendMode
@@ -222,9 +233,6 @@ public class Main extends Application{
             // set selected value
             layerSelector.setValue(layerName);
             pane.getChildren().add(0,canvas);
-            logMouseMovement();
-            logMouseDragging();
-            logMouseClicking();
             System.out.println(layerStrings);
             System.out.println(pane.getChildren());
             cursorCanvas.toFront();
@@ -257,7 +265,6 @@ public class Main extends Application{
         reset(cursorGC);
         cursorGC.setLineCap(StrokeLineCap.ROUND);
         cursorGC.setStroke(Color.DARKGRAY);
-        //cursorGC.setLineWidth(lineWidth.getValue());
         cursorGC.setLineWidth(1);
         cursorGC.strokeOval(e.getX()-radius/2, e.getY()-radius/2, radius, radius);
     }
