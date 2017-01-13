@@ -399,8 +399,7 @@ public class Main extends Application {
                 if ((e.getButton() == MouseButton.SECONDARY) && !e.isControlDown() && !e.isAltDown()){
                     if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Brush")){
                         toolListDisplay.getSelectionModel().select("Eraser");
-                    }
-                    if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Eraser")){
+                    } else if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Eraser")){
                         toolListDisplay.getSelectionModel().select("Brush");
                     }
                 }
