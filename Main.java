@@ -128,34 +128,64 @@ public class Main extends Application {
 
         Button buttonSave = new Button("Save");
         buttonSave.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                FileChooser fileChooser = new FileChooser();
-                // Set extension filter
-                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
-                fileChooser.getExtensionFilters().add(extFilter);
-                //Show save file dialog
-                File file = fileChooser.showSaveDialog(stage);
-
-                if(file != null){
-                    try {
-                        WritableImage writableImage = new WritableImage(WIDTH, HEIGHT);
-                        // Removes cursor canvas from the pane so the cursor
-                        // does not show up in the picture
-                        pane.getChildren().remove(layerStrings.size());
-                        pane.snapshot(null, writableImage);
-                        // The cursor canvas is added back and brought to the front
-                        pane.getChildren().add(cursorCanvas);
-                        cursorCanvas.toFront();
-                        RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
-                        ImageIO.write(renderedImage, "png", file);
-                    } catch (IOException ex) {
-                        //Compile error;
-                        Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        });
+		@Override
+		    public void handle(ActionEvent t) {
+		    FileChooser fileChooser = new FileChooser();
+		    // Set extension filter
+		    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+		    fileChooser.getExtensionFilters().add(extFilter);
+		    //Show save file dialog
+		    File file = fileChooser.showSaveDialog(stage);
+		    
+		    if(file != null){
+			try {
+			    WritableImage writableImage = new WritableImage(WIDTH, HEIGHT);
+			    // Removes cursor canvas from the pane so the cursor
+			    // does not show up in the picture
+			    pane.getChildren().remove(layerStrings.size());
+			    pane.snapshot(null, writableImage);
+			    // The cursor canvas is added back and brought to the front
+			    pane.getChildren().add(cursorCanvas);
+			    cursorCanvas.toFront();
+			    RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+			    ImageIO.write(renderedImage, "png", file);
+			} catch (IOException ex) {
+			    //Compile error;
+			    Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
+			}
+		    }
+		}
+	    });
+	
+	Button buttonOpen = new Button("Open");
+	buttonOpen.setOnAction(new EventHandler<ActionEvent>() {
+		@Override
+		    public void handle(ActionEvent t) {
+		    FileChooser fileChooser = new FileChooser();
+		    
+		    //Set extension filter
+		    FileChooser.ExtensionFilter extFilterJPG = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
+		    FileChooser.ExtensionFilter extFilterPNG = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
+		    fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
+	    
+		    //Show open file dialog
+		    File file = fileChooser.showOpenDialog(null);
+		    
+		    String path = file.getAbsolutePath();
+		    currentFile.setText(path);
+            
+		    try {
+			InputStream inputStream = new FileInputStream(path);
+			Image image = new Image(inputStream);
+			makeNewLayer(path);
+			getCurrentLayer.getGraphicsContext2D().drawImage(image, 0.0, 0.0);
+		    } catch (FileNotFoundException ex) {
+			//Compile error;
+			Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
+		    }
+		}
+	    });
+		    
 
         // Setup list for drawing tools
         toolListDisplay = new ListView<String>();
@@ -176,6 +206,7 @@ public class Main extends Application {
         final Label layerSelectionLabel = new Label("Layer Selector");
         final Label lineWidthLabel = new Label("Current Tool Width");
         final Label toolSelectionLabel = new Label("Tool Selection");
+	Label currentFile = new Label();
 
         //The group "root" now has previously added items in it
         //ADD
@@ -191,7 +222,9 @@ public class Main extends Application {
                 toolSelectionLabel,
                 toolListDisplay,
                 buttonSave,
-                blendMode
+                blendMode,
+		buttenOpen,
+		currentFile
         );
         root.getChildren().addAll(borderPane);
         // The stage's scene is not the group root
