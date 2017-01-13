@@ -396,23 +396,23 @@ public class Main extends Application {
                 //    Method "reset" clears the screen after a double-right-click
                 //    reset(gc);
                 //}
-		// if ((e.getButton() == MouseButton.SECONDARY) && !e.isControlDown() && !e.isAltDown()){
-		//     if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Brush")){
-		//         toolListDisplay.getSelectionModel().setSelectedItem("Eraser");
-		//     }
-		//     if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Eraser")){
-		//         toolListDisplay.getSelectionModel().setSelectedItem("Brush");
-		//     }
-		// }
+                if ((e.getButton() == MouseButton.SECONDARY) && !e.isControlDown() && !e.isAltDown()){
+                    if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Brush")){
+                        toolListDisplay.getSelectionModel().select("Eraser");
+                    }
+                    if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Eraser")){
+                        toolListDisplay.getSelectionModel().select("Brush");
+                    }
+                }
                 if (e.isAltDown() && !e.isControlDown()) {
                     WritableImage canvasSnapshot = pane.snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
                     // Chooses color from screen
                     colorPicker.setValue(canvasSnapshot.getPixelReader().getColor((int)(e.getX()), (int)(e.getY())));
                 }
                 logMouseEventCoordinates(e);
-		logMouseEvent(MouseEvent.MOUSE_CLICKED);
-		//System.out.println(toUndos.toString());
-		//System.out.println(mouseEventLog.toString());
+                logMouseEvent(MouseEvent.MOUSE_CLICKED);
+                //System.out.println(toUndos.toString());
+                //System.out.println(mouseEventLog.toString());
                 //System.out.println(mouseLog.toString());
             }
         });
