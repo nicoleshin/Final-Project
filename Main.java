@@ -98,7 +98,6 @@ public class Main extends Application {
         lineWidth.setMajorTickUnit(10);
         lineWidth.setMinorTickCount(5);
         lineWidth.setBlockIncrement(1);
-        final Label lineWidthLabel = new Label("Current Tool Width");
 
         // Setup button for making new layer
         Button newLayer = new Button("Add new Layer");
@@ -175,7 +174,7 @@ public class Main extends Application {
         // Labels
         final Label colorPickerLabel = new Label("Color Selection");
         final Label layerSelectionLabel = new Label("Layer Selector");
-        final Label lineWidthLabel = new Label("Brush Width");
+        final Label lineWidthLabel = new Label("Current Tool Width");
         final Label toolSelectionLabel = new Label("Tool Selection");
 
         //The group "root" now has previously added items in it
