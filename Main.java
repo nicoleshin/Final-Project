@@ -1,5 +1,5 @@
 import java.awt.image.RenderedImage;
-import java.io.File;
+import java.io.*;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,191 +48,191 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage stage) {
-        stage.setTitle("Minimalistic Art Rendering System");
-        Group root = new Group();
+        public void start(Stage stage) {
+            stage.setTitle("Minimalistic Art Rendering System");
+            Group root = new Group();
 
-        //Undo Redo Holding Arrays
-        toUndos = new ArrayList<Image>(50);
-        toRedos = new ArrayList<Image>(50);
-        undoCanvases = new ArrayList<Canvas>(50);
-        redoCanvases = new ArrayList<Canvas>(50);
+            //Undo Redo Holding Arrays
+            toUndos = new ArrayList<Image>(50);
+            toRedos = new ArrayList<Image>(50);
+            undoCanvases = new ArrayList<Canvas>(50);
+            redoCanvases = new ArrayList<Canvas>(50);
 
-        // Choice selector for layers
-        layerSelector = new ChoiceBox<String>();
-        layerSelector.setTooltip(new Tooltip("Select a Layer"));
+            // Choice selector for layers
+            layerSelector = new ChoiceBox<String>();
+            layerSelector.setTooltip(new Tooltip("Select a Layer"));
 
-        layerStrings = new ArrayList<String>();
-        layers = new HashMap<String, Canvas>();
+            layerStrings = new ArrayList<String>();
+            layers = new HashMap<String, Canvas>();
 
-        VBox leftToolbar = new VBox(10);
-        leftToolbar.setAlignment(Pos.TOP_LEFT);
-        leftToolbar.setPrefWidth(175);
-        pane = new Pane();
+            VBox leftToolbar = new VBox(10);
+            leftToolbar.setAlignment(Pos.TOP_LEFT);
+            leftToolbar.setPrefWidth(175);
+            pane = new Pane();
 
-        // Make uninteractable layer for cursor
-        // Add to layers and layerStrings, make sure no conflicts, cursor layer
-        // should always be first in layerStrings
-        cursorCanvas = new Canvas(WIDTH, HEIGHT);
-        pane.getChildren().add(cursorCanvas);
-        logMouseMovement();
-        logMouseDragging();
-        logMouseClicking();
+            // Make uninteractable layer for cursor
+            // Add to layers and layerStrings, make sure no conflicts, cursor layer
+            // should always be first in layerStrings
+            cursorCanvas = new Canvas(WIDTH, HEIGHT);
+            pane.getChildren().add(cursorCanvas);
+            logMouseMovement();
+            logMouseDragging();
+            logMouseClicking();
 
-        makeNewLayer("Layer1");
-        BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(pane);
-        borderPane.setLeft(leftToolbar);
-        borderPane.setMargin(leftToolbar, new Insets(10));
+            makeNewLayer("Layer1");
+            BorderPane borderPane = new BorderPane();
+            borderPane.setCenter(pane);
+            borderPane.setLeft(leftToolbar);
+            borderPane.setMargin(leftToolbar, new Insets(10));
 
-        // Add Color picker
-        colorPicker.setValue(Color.BLACK);
+            // Add Color picker
+            colorPicker.setValue(Color.BLACK);
 
-        // Setup mouse-action log
-        mouseLog = new ArrayList<Double>(20);
-        mouseEventLog = new ArrayList<EventType<MouseEvent>>(10);
+            // Setup mouse-action log
+            mouseLog = new ArrayList<Double>(20);
+            mouseEventLog = new ArrayList<EventType<MouseEvent>>(10);
 
-        // Setup slider for brush size
-        lineWidth.setShowTickLabels(true);
-        lineWidth.setShowTickMarks(true);
-        lineWidth.setMajorTickUnit(10);
-        lineWidth.setMinorTickCount(5);
-        lineWidth.setBlockIncrement(1);
+            // Setup slider for brush size
+            lineWidth.setShowTickLabels(true);
+            lineWidth.setShowTickMarks(true);
+            lineWidth.setMajorTickUnit(10);
+            lineWidth.setMinorTickCount(5);
+            lineWidth.setBlockIncrement(1);
 
-        // Setup button for making new layer
-        Button newLayer = new Button("Add new Layer");
-        // Opens pop up prompt for new layer creation
-        // Only works in java 8:
-        // newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
-        newLayer.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent a) {
-                String name = AddLayerPopup.display();
-                if (!name.isEmpty()) {
-                    makeNewLayer(name);
+            // Setup button for making new layer
+            Button newLayer = new Button("Add new Layer");
+            // Opens pop up prompt for new layer creation
+            // Only works in java 8:
+            // newLayer.setOnAction(l -> makeNewLayer(AddLayerPopup.display()));
+            newLayer.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent a) {
+                    String name = AddLayerPopup.display();
+                    if (!name.isEmpty()) {
+                        makeNewLayer(name);
+                    }
                 }
-            }
-        });
+            });
 
-        // Opens pop up prompt with options to edit layers
-        // When the popup is exited and selected layer is renamed, no layer will be selected
-        Button editLayers = new Button("Edit Layers");
-        // Only works in java 8:
-        // editLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
-        editLayers.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent a) {
-                setLayerStrings(EditLayersPopup.display());
-            }
-        });
+            // Opens pop up prompt with options to edit layers
+            // When the popup is exited and selected layer is renamed, no layer will be selected
+            Button editLayers = new Button("Edit Layers");
+            // Only works in java 8:
+            // editLayers.setOnAction(l -> setLayerStrings(EditLayersPopup.display()));
+            editLayers.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent a) {
+                    setLayerStrings(EditLayersPopup.display());
+                }
+            });
 
-        Button buttonSave = new Button("Save");
-        buttonSave.setOnAction(new EventHandler<ActionEvent>() {
-		@Override
-		    public void handle(ActionEvent t) {
-		    FileChooser fileChooser = new FileChooser();
-		    // Set extension filter
-		    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
-		    fileChooser.getExtensionFilters().add(extFilter);
-		    //Show save file dialog
-		    File file = fileChooser.showSaveDialog(stage);
-		    
-		    if(file != null){
-			try {
-			    WritableImage writableImage = new WritableImage(WIDTH, HEIGHT);
-			    // Removes cursor canvas from the pane so the cursor
-			    // does not show up in the picture
-			    pane.getChildren().remove(layerStrings.size());
-			    pane.snapshot(null, writableImage);
-			    // The cursor canvas is added back and brought to the front
-			    pane.getChildren().add(cursorCanvas);
-			    cursorCanvas.toFront();
-			    RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
-			    ImageIO.write(renderedImage, "png", file);
-			} catch (IOException ex) {
-			    //Compile error;
-			    Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
-			}
-		    }
-		}
-	    });
-	
-	Button buttonOpen = new Button("Open");
-	buttonOpen.setOnAction(new EventHandler<ActionEvent>() {
-		@Override
-		    public void handle(ActionEvent t) {
-		    FileChooser fileChooser = new FileChooser();
-		    
-		    //Set extension filter
-		    FileChooser.ExtensionFilter extFilterJPG = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
-		    FileChooser.ExtensionFilter extFilterPNG = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
-		    fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
-	    
-		    //Show open file dialog
-		    File file = fileChooser.showOpenDialog(null);
-		    
-		    String path = file.getAbsolutePath();
-		    currentFile.setText(path);
-            
-		    try {
-			InputStream inputStream = new FileInputStream(path);
-			Image image = new Image(inputStream);
-			makeNewLayer(path);
-			getCurrentLayer.getGraphicsContext2D().drawImage(image, 0.0, 0.0);
-		    } catch (FileNotFoundException ex) {
-			//Compile error;
-			Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
-		    }
-		}
-	    });
-		    
+            Button buttonSave = new Button("Save");
+            buttonSave.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent t) {
+                    FileChooser fileChooser = new FileChooser();
+                    // Set extension filter
+                    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+                    fileChooser.getExtensionFilters().add(extFilter);
+                    //Show save file dialog
+                    File file = fileChooser.showSaveDialog(stage);
 
-        // Setup list for drawing tools
-        toolListDisplay = new ListView<String>();
-        ObservableList<String> observableToolList = FXCollections.observableArrayList(drawingTools);
-        toolListDisplay.setPrefWidth(200);
-        toolListDisplay.setPrefHeight(200);
-        toolListDisplay.setItems(observableToolList);
-        toolListDisplay.getSelectionModel().select(0);
+                    if(file != null){
+                        try {
+                            WritableImage writableImage = new WritableImage(WIDTH, HEIGHT);
+                            // Removes cursor canvas from the pane so the cursor
+                            // does not show up in the picture
+                            pane.getChildren().remove(layerStrings.size());
+                            pane.snapshot(null, writableImage);
+                            // The cursor canvas is added back and brought to the front
+                            pane.getChildren().add(cursorCanvas);
+                            cursorCanvas.toFront();
+                            RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+                            ImageIO.write(renderedImage, "png", file);
+                        } catch (IOException ex) {
+                            //Compile error;
+                            Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+            });
 
-        //Choose a blendmode for the layer you're on
-        blendMode = new ChoiceBox<BlendMode>();
-        blendMode.setTooltip(new Tooltip("Select a Layer Blending Mode!"));
-        blendMode.getItems().addAll(BlendMode.ADD, BlendMode.BLUE, BlendMode.COLOR_BURN, BlendMode.COLOR_DODGE, BlendMode.DARKEN, BlendMode.DIFFERENCE, BlendMode.EXCLUSION, BlendMode.GREEN, BlendMode.HARD_LIGHT, BlendMode.LIGHTEN, BlendMode.MULTIPLY, BlendMode.OVERLAY, BlendMode.RED, BlendMode.SCREEN, BlendMode.SOFT_LIGHT, BlendMode.SRC_ATOP, BlendMode.SRC_OVER);
-        blendMode.setValue(BlendMode.SRC_OVER);
+            Button buttonOpen = new Button("Open");
+            Label currentFile = new Label();
+            buttonOpen.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent t) {
+                    FileChooser fileChooser = new FileChooser();
 
-        // Labels
-        final Label colorPickerLabel = new Label("Color Selection");
-        final Label layerSelectionLabel = new Label("Layer Selector");
-        final Label lineWidthLabel = new Label("Current Tool Width");
-        final Label toolSelectionLabel = new Label("Tool Selection");
-	Label currentFile = new Label();
+                    //Set extension filter
+                    FileChooser.ExtensionFilter extFilterJPG = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
+                    FileChooser.ExtensionFilter extFilterPNG = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
+                    fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
 
-        //The group "root" now has previously added items in it
-        //ADD
-        leftToolbar.getChildren().addAll(
-                colorPickerLabel,
-                colorPicker,
-                layerSelectionLabel,
-                layerSelector,
-                editLayers,
-                newLayer,
-                lineWidthLabel,
-                lineWidth,
-                toolSelectionLabel,
-                toolListDisplay,
-                buttonSave,
-                blendMode,
-		buttenOpen,
-		currentFile
-        );
-        root.getChildren().addAll(borderPane);
-        // The stage's scene is not the group root
-        stage.setScene(new Scene(root));
-        stage.show();
-        saveCurrent();
-        logMouseEvent(MouseEvent.MOUSE_MOVED);
-    }
+                    //Show open file dialog
+                    File file = fileChooser.showOpenDialog(null);
+
+                    String path = file.getAbsolutePath();
+                    currentFile.setText(path);
+
+                    try {
+                        InputStream inputStream = new FileInputStream(path);
+                        Image image = new Image(inputStream);
+                        makeNewLayer(path);
+                        getCurrentLayer().getGraphicsContext2D().drawImage(image, 0.0, 0.0);
+                    } catch (FileNotFoundException ex) {
+                        //Compile error;
+                        Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+
+
+            // Setup list for drawing tools
+            toolListDisplay = new ListView<String>();
+            ObservableList<String> observableToolList = FXCollections.observableArrayList(drawingTools);
+            toolListDisplay.setPrefWidth(200);
+            toolListDisplay.setPrefHeight(200);
+            toolListDisplay.setItems(observableToolList);
+            toolListDisplay.getSelectionModel().select(0);
+
+            //Choose a blendmode for the layer you're on
+            blendMode = new ChoiceBox<BlendMode>();
+            blendMode.setTooltip(new Tooltip("Select a Layer Blending Mode!"));
+            blendMode.getItems().addAll(BlendMode.ADD, BlendMode.BLUE, BlendMode.COLOR_BURN, BlendMode.COLOR_DODGE, BlendMode.DARKEN, BlendMode.DIFFERENCE, BlendMode.EXCLUSION, BlendMode.GREEN, BlendMode.HARD_LIGHT, BlendMode.LIGHTEN, BlendMode.MULTIPLY, BlendMode.OVERLAY, BlendMode.RED, BlendMode.SCREEN, BlendMode.SOFT_LIGHT, BlendMode.SRC_ATOP, BlendMode.SRC_OVER);
+            blendMode.setValue(BlendMode.SRC_OVER);
+
+            // Labels
+            final Label colorPickerLabel = new Label("Color Selection");
+            final Label layerSelectionLabel = new Label("Layer Selector");
+            final Label lineWidthLabel = new Label("Current Tool Width");
+            final Label toolSelectionLabel = new Label("Tool Selection");
+
+            //The group "root" now has previously added items in it
+            //ADD
+            leftToolbar.getChildren().addAll(
+                    colorPickerLabel,
+                    colorPicker,
+                    layerSelectionLabel,
+                    layerSelector,
+                    editLayers,
+                    newLayer,
+                    lineWidthLabel,
+                    lineWidth,
+                    toolSelectionLabel,
+                    toolListDisplay,
+                    buttonSave,
+                    blendMode,
+                    buttonOpen,
+                    currentFile
+                    );
+            root.getChildren().addAll(borderPane);
+            // The stage's scene is not the group root
+            stage.setScene(new Scene(root));
+            stage.show();
+            saveCurrent();
+            logMouseEvent(MouseEvent.MOUSE_MOVED);
+        }
 
     //for the case of needing to clear? By smothering everything with a new thing on top?
     private void reset(GraphicsContext gc) {
@@ -331,14 +331,14 @@ public class Main extends Application {
                 //System.out.println(mouseLog.toString());
                 if (e.isControlDown() && !e.isAltDown() && (e.getX() < mouseLog.get(2))){
                     if (toUndos.size() > 0 && undoCanvases.size() > 0){
-                    gc = undoCanvases.get(0).getGraphicsContext2D();
-                    gc.setGlobalBlendMode(BlendMode.SRC_OVER);
-                    reset(gc);
-                    gc.drawImage(toUndos.get(0),0.0,0.0);
-                    toRedos.add(0, toUndos.get(0));
-                    redoCanvases.add(0, undoCanvases.get(0));
-                    toUndos.remove(0);
-                    undoCanvases.remove(0);
+                        gc = undoCanvases.get(0).getGraphicsContext2D();
+                        gc.setGlobalBlendMode(BlendMode.SRC_OVER);
+                        reset(gc);
+                        gc.drawImage(toUndos.get(0),0.0,0.0);
+                        toRedos.add(0, toUndos.get(0));
+                        redoCanvases.add(0, undoCanvases.get(0));
+                        toUndos.remove(0);
+                        undoCanvases.remove(0);
                     }
                     //System.out.println(toUndos.toString());
                     //System.out.println(toRedos.toString());
@@ -346,14 +346,14 @@ public class Main extends Application {
                 }
                 if (e.isControlDown() && !e.isAltDown() && (e.getX() > mouseLog.get(2))){
                     if (toRedos.size() > 0 && redoCanvases.size() > 0){
-                    gc = redoCanvases.get(0).getGraphicsContext2D();
-                    gc.setGlobalBlendMode(BlendMode.SRC_OVER);
-                    reset(gc);
-                    gc.drawImage(toRedos.get(0),0.0,0.0);
-                    toUndos.add(0, toRedos.get(0));
-                    undoCanvases.add(0, redoCanvases.get(0));
-                    toRedos.remove(0);
-                    redoCanvases.remove(0);
+                        gc = redoCanvases.get(0).getGraphicsContext2D();
+                        gc.setGlobalBlendMode(BlendMode.SRC_OVER);
+                        reset(gc);
+                        gc.drawImage(toRedos.get(0),0.0,0.0);
+                        toUndos.add(0, toRedos.get(0));
+                        undoCanvases.add(0, redoCanvases.get(0));
+                        toRedos.remove(0);
+                        redoCanvases.remove(0);
                     }
                     //System.out.println(toUndos.toString());
                     //System.out.println(toUndos.toString());
