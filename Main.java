@@ -95,7 +95,10 @@ public class Main extends Application {
         newLayer.addEventHandler(ActionEvent.ACTION, new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent a) {
-                makeNewLayer(AddLayerPopup.display());
+                String name = AddLayerPopup.display();
+                if (!name.isEmpty()) {
+                    makeNewLayer(name);
+                }
             }
         });
 

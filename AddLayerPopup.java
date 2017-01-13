@@ -10,12 +10,13 @@ import javafx.scene.text.Text;
 
 public class AddLayerPopup{
 
-    private static String newLayerName = "";
+    private static String newLayerName;
 
     public static String display(){
         Stage popupwindow = new Stage();
         popupwindow.initModality(Modality.APPLICATION_MODAL);
         popupwindow.setTitle("Create a new layer.");
+        newLayerName = "";
 
         //layerName text field
         final TextField layerName = new TextField();
@@ -51,6 +52,4 @@ public class AddLayerPopup{
         popupwindow.showAndWait();
         return newLayerName;
     }
-
 }
-
