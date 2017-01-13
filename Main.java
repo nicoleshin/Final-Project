@@ -27,6 +27,7 @@ public class Main extends Application{
     private static final int WIDTH = 1000;
     private static final int HEIGHT = 700;
     private static ArrayList<Double> mouseLog;
+    private static ArrayList<EventType<MouseEvent>> mouseEventLog;
     public static HashMap<String, Canvas> layers;
     public static ArrayList<String> layerStrings;
     private static ChoiceBox<String> layerSelector;
@@ -38,6 +39,10 @@ public class Main extends Application{
     private static final Slider lineWidth = new Slider(0,100,15);
     private String tool;
     private static ChoiceBox<BlendMode> blendMode;
+    public static ArrayList<Image> toUndos;
+    public static ArrayList<Image> toRedos;
+    public static ArrayList<Canvas> undoCanvases;
+    public static ArrayList<Canvas> redoCanvases;
 
     public static void main(String[] args) {
         launch(args);
@@ -45,9 +50,15 @@ public class Main extends Application{
 
     @Override
     public void start(Stage stage) {
-        stage.setTitle("Basic Paint Program");
+        stage.setTitle("Minimalistic Art Rendering System");
         Group root = new Group();
 
+	//Undo Redo Holding Arrays
+	toUndos = new ArrayList<Image>(50);
+	toRedos = new ArrayList<Image>(50);
+	undoCanvases = new ArrayList<Canvas>(50);
+	redoCanvases = new ArrayList<Canvas>(50);
+	
         // Choice selector for layers
         layerSelector = new ChoiceBox<String>();
         layerSelector.setTooltip(new Tooltip("Select a Layer"));
@@ -80,6 +91,7 @@ public class Main extends Application{
 
         // Setup mouse-action log
         mouseLog = new ArrayList<Double>(20);
+	mouseEventLog = new ArrayList<EventType<MouseEvent>>(10);
 
         // Setup slider for brush size
         lineWidth.setShowTickLabels(true);
@@ -87,7 +99,7 @@ public class Main extends Application{
         lineWidth.setMajorTickUnit(10);
         lineWidth.setMinorTickCount(5);
         lineWidth.setBlockIncrement(1);
-        final Label lineWidthLabel = new Label("Brush Width");
+        final Label lineWidthLabel = new Label("Current Tool Width");
 
         // Setup button for making new layer
         Button newLayer = new Button("Add new Layer");
@@ -175,6 +187,8 @@ public class Main extends Application{
         // The stage's scene is not the group root
         stage.setScene(new Scene(root));
         stage.show();
+        saveCurrent();
+	logMouseEvent(MouseEvent.MOUSE_MOVED);
     }
 
     //for the case of needing to clear? By smothering everything with a new thing on top?
@@ -213,13 +227,28 @@ public class Main extends Application{
             logMouseClicking();
             System.out.println(layerStrings);
             System.out.println(pane.getChildren());
-
             cursorCanvas.toFront();
         }
     }
 
     private Canvas getCurrentLayer() {
         return layers.get(layerSelector.getValue());
+    }
+    
+    private void saveCurrent(){
+	toRedos.clear();
+	redoCanvases.clear();
+	WritableImage currentCanvasState = getCurrentLayer().snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
+	toUndos.add(0, currentCanvasState);
+	if (toUndos.size() > 50){
+	    toUndos.remove(50);
+	}
+	undoCanvases.add(0, getCurrentLayer());
+	if (undoCanvases.size() > 50){
+	    undoCanvases.remove(50);
+	}
+	//System.out.println(toUndos.toString());
+	//System.out.println(mouseEventLog.toString());
     }
 
     private void cursorUpdate(MouseEvent e) {
@@ -233,18 +262,65 @@ public class Main extends Application{
         cursorGC.strokeOval(e.getX()-radius/2, e.getY()-radius/2, radius, radius);
     }
 
+    private void logMouseEventCoordinates(MouseEvent e){
+	mouseLog.add(0, e.getY());
+	mouseLog.add(0, e.getX());
+	if (mouseLog.size() > 10) {
+	    mouseLog.remove(10);
+	    mouseLog.remove(10);
+	}
+    }
+
+    private void logMouseEvent(EventType<MouseEvent> type){
+	mouseEventLog.add(0, type);
+	if (mouseEventLog.size() > 10) {
+	    mouseEventLog.remove(10);
+	}
+    }
+
+    
     private void logMouseMovement() {
         cursorCanvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
+		GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
                 cursorUpdate(e);
-                mouseLog.add(0, e.getY());
-                mouseLog.add(0, e.getX());
-                if (mouseLog.size() > 10) {
-                    mouseLog.remove(10);
-                    mouseLog.remove(10);
-                }
+		if (mouseEventLog.get(0) == MouseEvent.MOUSE_DRAGGED){
+		    saveCurrent();
+		}
+		logMouseEventCoordinates(e);
+	        logMouseEvent(MouseEvent.MOUSE_MOVED);
                 //System.out.println(mouseLog.toString());
+		if (e.isControlDown() && !e.isAltDown() && (e.getX() < mouseLog.get(2))){
+		    if (toUndos.size() > 0 && undoCanvases.size() > 0){
+			gc = undoCanvases.get(0).getGraphicsContext2D();
+			gc.setGlobalBlendMode(BlendMode.SRC_OVER);
+			reset(gc);
+			gc.drawImage(toUndos.get(0),0.0,0.0);
+			toRedos.add(0, toUndos.get(0));
+			redoCanvases.add(0, undoCanvases.get(0));
+			toUndos.remove(0);
+			undoCanvases.remove(0);
+		    }
+		    //System.out.println(toUndos.toString());
+		    //System.out.println(toRedos.toString());
+		    //System.out.println(mouseEventLog.toString());
+		}
+		if (e.isControlDown() && !e.isAltDown() && (e.getX() > mouseLog.get(2))){
+		    if (toRedos.size() > 0 && redoCanvases.size() > 0){
+			gc = redoCanvases.get(0).getGraphicsContext2D();
+			gc.setGlobalBlendMode(BlendMode.SRC_OVER);
+			reset(gc);
+			gc.drawImage(toRedos.get(0),0.0,0.0);
+			toUndos.add(0, toRedos.get(0));
+			undoCanvases.add(0, redoCanvases.get(0));
+			toRedos.remove(0);
+			redoCanvases.remove(0);
+		    }
+		    //System.out.println(toUndos.toString());
+		    //System.out.println(toUndos.toString());
+		    //System.out.println(mouseEventLog.toString());
+		}
             }
         });
     }
@@ -273,16 +349,15 @@ public class Main extends Application{
                         // Makes stroke based on selected tool
                         createStroke(gc, e);
                     }
+		    if (mouseEventLog.get(0) == MouseEvent.MOUSE_MOVED){
+		    	saveCurrent();
+		    }
                 }
                 if (e.isSecondaryButtonDown()){
                     gc.setGlobalBlendMode(BlendMode.SRC_OVER);
                 }
-                mouseLog.add(0, e.getY());
-                mouseLog.add(0, e.getX());
-                if (mouseLog.size() > 10) {
-                    mouseLog.remove(10);
-                    mouseLog.remove(10);
-                }
+		logMouseEventCoordinates(e);
+		logMouseEvent(MouseEvent.MOUSE_DRAGGED);
                 //System.out.println(mouseLog.toString());
             }
         });
@@ -298,6 +373,7 @@ public class Main extends Application{
             // Able to draw continuous lines instead of separated squares
             gc.strokeLine(mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY());
         } else if (selectedTool.equals("Eraser")) {
+	    gc.setGlobalBlendMode(BlendMode.SRC_OVER);
             eraseLine(gc, mouseLog.get(0),mouseLog.get(1),e.getX(),e.getY(), width);
         } else {
             // for debugging
@@ -311,21 +387,27 @@ public class Main extends Application{
             public void handle(MouseEvent e) {
                 cursorUpdate(e);
                 GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
-                if ((e.getClickCount() >1) && (e.getButton() == MouseButton.SECONDARY)) {
-                    // Method "reset" clears the screen after a double-right-click
-                    reset(gc);
-                }
+                //if ((e.getClickCount() >1) && (e.getButton() == MouseButton.SECONDARY)) {
+                //    Method "reset" clears the screen after a double-right-click
+                //    reset(gc);
+                //}
+		// if ((e.getButton() == MouseButton.SECONDARY) && !e.isControlDown() && !e.isAltDown()){
+		//     if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Brush")){
+		//         toolListDisplay.getSelectionModel().setSelectedItem("Eraser");
+		//     }
+		//     if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Eraser")){
+		//         toolListDisplay.getSelectionModel().setSelectedItem("Brush");
+		//     }
+		// }
                 if (e.isAltDown() && !e.isControlDown()) {
                     WritableImage canvasSnapshot = pane.snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
                     // Chooses color from screen
                     colorPicker.setValue(canvasSnapshot.getPixelReader().getColor((int)(e.getX()), (int)(e.getY())));
                 }
-                mouseLog.add(0, e.getY());
-                mouseLog.add(0, e.getX());
-                if (mouseLog.size() > 10) {
-                    mouseLog.remove(10);
-                    mouseLog.remove(10);
-                }
+                logMouseEventCoordinates(e);
+		logMouseEvent(MouseEvent.MOUSE_CLICKED);
+		//System.out.println(toUndos.toString());
+		//System.out.println(mouseEventLog.toString());
                 //System.out.println(mouseLog.toString());
             }
         });
