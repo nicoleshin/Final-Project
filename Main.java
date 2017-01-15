@@ -24,8 +24,8 @@ import javafx.scene.effect.*;
 
 public class Main extends Application {
 
-    private static final int WIDTH = 1000;
-    private static final int HEIGHT = 700;
+    private static final int WIDTH = 1280;
+    private static final int HEIGHT = 800;
     private static ArrayList<Double> mouseLog;
     private static ArrayList<EventType<MouseEvent>> mouseEventLog;
     public static HashMap<String, Canvas> layers;
@@ -42,6 +42,10 @@ public class Main extends Application {
     public static ArrayList<Image> toRedos;
     public static ArrayList<Canvas> undoCanvases;
     public static ArrayList<Canvas> redoCanvases;
+    private static final Slider hue = new Slider (0, 360, 60);
+    private static final Slider saturation = new Slider (0, 100, 10);
+    private static final Slider brightness = new Slider (0, 100, 10);
+    private static final Slider opacity = new Slider (0, 100, 10);
 
     public static void main(String[] args) {
         launch(args);
@@ -85,8 +89,32 @@ public class Main extends Application {
             borderPane.setLeft(leftToolbar);
             borderPane.setMargin(leftToolbar, new Insets(10));
 
-            // Add Color picker
+            // Color Creation Node Setup
             colorPicker.setValue(Color.BLACK);
+	    hue.setShowTickLabels(true);
+	    hue.setShowTickMarks(true);
+	    hue.setMajorTickUnit(60);
+            hue.setMinorTickCount(30);
+            hue.setBlockIncrement(1);
+	    hue.setValue(0.0);
+	    saturation.setShowTickLabels(true);
+            saturation.setShowTickMarks(true);
+            saturation.setMajorTickUnit(10);
+            saturation.setMinorTickCount(5);
+            saturation.setBlockIncrement(1);
+	    saturation.setValue(100.0);
+	    brightness.setShowTickLabels(true);
+            brightness.setShowTickMarks(true);
+            brightness.setMajorTickUnit(10);
+            brightness.setMinorTickCount(5);
+            brightness.setBlockIncrement(1);
+	    brightness.setValue(100.0);
+	    opacity.setShowTickLabels(true);
+            opacity.setShowTickMarks(true);
+            opacity.setMajorTickUnit(10);
+            opacity.setMinorTickCount(5);
+            opacity.setBlockIncrement(1);
+	    opacity.setValue(100.0);
 
             // Setup mouse-action log
             mouseLog = new ArrayList<Double>(20);
@@ -192,7 +220,7 @@ public class Main extends Application {
             toolListDisplay = new ListView<String>();
             ObservableList<String> observableToolList = FXCollections.observableArrayList(drawingTools);
             toolListDisplay.setPrefWidth(200);
-            toolListDisplay.setPrefHeight(200);
+            toolListDisplay.setPrefHeight(50);
             toolListDisplay.setItems(observableToolList);
             toolListDisplay.getSelectionModel().select(0);
 
@@ -204,15 +232,35 @@ public class Main extends Application {
 
             // Labels
             final Label colorPickerLabel = new Label("Color Selection");
+	    colorPickerLabel.setPrefHeight(5);
             final Label layerSelectionLabel = new Label("Layer Selector");
+	    layerSelectionLabel.setPrefHeight(5);
             final Label lineWidthLabel = new Label("Current Tool Width");
+	    lineWidthLabel.setPrefHeight(5);
             final Label toolSelectionLabel = new Label("Tool Selection");
+	    toolSelectionLabel.setPrefHeight(5);
+	    final Label hueLabel = new Label("Hue");
+	    hueLabel.setPrefHeight(5);
+	    final Label saturationLabel = new Label("Saturation");
+	    saturationLabel.setPrefHeight(5);
+	    final Label brightnessLabel = new Label("Brightness");
+	    brightnessLabel.setPrefHeight(5);
+	    final Label opacityLabel = new Label("Density");
+	    opacityLabel.setPrefHeight(5);
 
             //The group "root" now has previously added items in it
             //ADD
             leftToolbar.getChildren().addAll(
                     colorPickerLabel,
                     colorPicker,
+		    hueLabel,
+		    hue,
+		    saturationLabel,
+		    saturation,
+		    brightnessLabel,
+		    brightness,
+		    opacityLabel,
+		    opacity,
                     layerSelectionLabel,
                     layerSelector,
                     editLayers,
@@ -317,14 +365,20 @@ public class Main extends Application {
         }
     }
 
+    private void colorUpdate(){
+	colorPicker.setValue(Color.hsb(hue.getValue(), saturation.getValue() / 100, brightness.getValue() / 100, opacity.getValue() / 100));
+    }
+
     private void logMouseMovement() {
         cursorCanvas.addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
                 GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
                 cursorUpdate(e);
-                if (mouseEventLog.get(0) == MouseEvent.MOUSE_DRAGGED){
+		colorUpdate();
+                if (mouseEventLog.get(0) == MouseEvent.MOUSE_CLICKED){
                     saveCurrent();
+		    System.out.println(mouseEventLog.toString());
                 }
                 logMouseEventCoordinates(e);
                 logMouseEvent(MouseEvent.MOUSE_MOVED);
@@ -374,11 +428,14 @@ public class Main extends Application {
                 } else {
                     //System.out.println(layerStrings.indexOf(layerSelector.getValue()));
                     if (e.isPrimaryButtonDown()) {
-                        if ((blendMode.getValue() == BlendMode.SRC_OVER)
-                            || (blendMode.getValue() == BlendMode.SRC_ATOP)
-                            || (blendMode.getValue() == BlendMode.RED)
-                            || (blendMode.getValue() == BlendMode.BLUE)
-                            || (blendMode.getValue() == BlendMode.GREEN)){
+                        if ((opacity.getValue() == 100.0)
+			    && ((blendMode.getValue() == BlendMode.SRC_OVER)
+				|| (blendMode.getValue() == BlendMode.SRC_ATOP)
+				|| (blendMode.getValue() == BlendMode.RED)
+				|| (blendMode.getValue() == BlendMode.BLUE)
+				|| (blendMode.getValue() == BlendMode.GREEN)
+				|| (blendMode.getValue() == BlendMode.LIGHTEN)
+				|| (blendMode.getValue() == BlendMode.DARKEN))){
                             gc.setLineCap(StrokeLineCap.ROUND);
                         } else {
                             gc.setLineCap(StrokeLineCap.BUTT);
