@@ -92,54 +92,54 @@ public class Main extends Application {
 
             // Color Creation Nodes Setup
             colorPicker.setValue(Color.BLACK);
-	    hue.setShowTickLabels(true);
-	    hue.setShowTickMarks(true);
-	    hue.setMajorTickUnit(60);
+            hue.setShowTickLabels(true);
+            hue.setShowTickMarks(true);
+            hue.setMajorTickUnit(60);
             hue.setMinorTickCount(30);
             hue.setBlockIncrement(1);
-	    hue.setValue(0.0);
-	    hue.setOnMouseReleased(new EventHandler<MouseEvent>() {
-	     	    @Override
-	     	    public void handle(MouseEvent t) {
-		        colorUpdater = "ColorPicker";
-	     	    }
-	     	});
-	    saturation.setShowTickLabels(true);
+            hue.setValue(0.0);
+            hue.setOnMouseReleased(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent t) {
+                    colorUpdater = "ColorPicker";
+                }
+            });
+            saturation.setShowTickLabels(true);
             saturation.setShowTickMarks(true);
             saturation.setMajorTickUnit(10);
             saturation.setMinorTickCount(5);
             saturation.setBlockIncrement(1);
-	    saturation.setValue(100.0);
-	    saturation.setOnMouseReleased(new EventHandler<MouseEvent>() {
-	     	    @Override
-	     	    public void handle(MouseEvent t) {
-		        colorUpdater = "ColorPicker";
-	     	    }
-	     	});
-	    brightness.setShowTickLabels(true);
+            saturation.setValue(100.0);
+            saturation.setOnMouseReleased(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent t) {
+                    colorUpdater = "ColorPicker";
+                }
+            });
+            brightness.setShowTickLabels(true);
             brightness.setShowTickMarks(true);
             brightness.setMajorTickUnit(10);
             brightness.setMinorTickCount(5);
             brightness.setBlockIncrement(1);
-	    brightness.setValue(100.0);
-	    brightness.setOnMouseReleased(new EventHandler<MouseEvent>() {
-	     	    @Override
-	     	    public void handle(MouseEvent t) {
-		        colorUpdater = "ColorPicker";
-	     	    }
-	     	});
-	    opacity.setShowTickLabels(true);
+            brightness.setValue(100.0);
+            brightness.setOnMouseReleased(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent t) {
+                    colorUpdater = "ColorPicker";
+                }
+            });
+            opacity.setShowTickLabels(true);
             opacity.setShowTickMarks(true);
             opacity.setMajorTickUnit(10);
             opacity.setMinorTickCount(5);
             opacity.setBlockIncrement(1);
-	    opacity.setValue(100.0);
-	    opacity.setOnMouseReleased(new EventHandler<MouseEvent>() {
-	     	    @Override
-	     	    public void handle(MouseEvent t) {
-		        colorUpdater = "ColorPicker";
-	     	    }
-	     	});
+            opacity.setValue(100.0);
+            opacity.setOnMouseReleased(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent t) {
+                    colorUpdater = "ColorPicker";
+                }
+            });
 
             // Setup mouse-action log
             mouseLog = new ArrayList<Double>(20);
@@ -234,7 +234,6 @@ public class Main extends Application {
                         makeNewLayer(path);
                         getCurrentLayer().getGraphicsContext2D().drawImage(image, 0.0, 0.0);
                     } catch (FileNotFoundException ex) {
-                        //Compile error;
                         Logger.getLogger("Save Error").log(Level.SEVERE, null, ex);
                     }
                 }
@@ -257,68 +256,59 @@ public class Main extends Application {
 
             // Labels
             final Label colorPickerLabel = new Label("Color Selection");
-	    colorPickerLabel.setPrefHeight(5);
+            colorPickerLabel.setPrefHeight(5);
             final Label layerSelectionLabel = new Label("Layer Selector");
-	    layerSelectionLabel.setPrefHeight(5);
+            layerSelectionLabel.setPrefHeight(5);
             final Label lineWidthLabel = new Label("Current Tool Width");
-	    lineWidthLabel.setPrefHeight(5);
+            lineWidthLabel.setPrefHeight(5);
             final Label toolSelectionLabel = new Label("Tool Selection");
-	    toolSelectionLabel.setPrefHeight(5);
-	    final Label hueLabel = new Label("Hue");
-	    hueLabel.setPrefHeight(5);
-	    final Label saturationLabel = new Label("Saturation");
-	    saturationLabel.setPrefHeight(5);
-	    final Label brightnessLabel = new Label("Brightness");
-	    brightnessLabel.setPrefHeight(5);
-	    final Label opacityLabel = new Label("Density");
-	    opacityLabel.setPrefHeight(5);
+            toolSelectionLabel.setPrefHeight(5);
+            final Label hueLabel = new Label("Hue");
+            hueLabel.setPrefHeight(5);
+            final Label saturationLabel = new Label("Saturation");
+            saturationLabel.setPrefHeight(5);
+            final Label brightnessLabel = new Label("Brightness");
+            brightnessLabel.setPrefHeight(5);
+            final Label opacityLabel = new Label("Density");
+            opacityLabel.setPrefHeight(5);
 
-	    colorUpdater = "Sliders";
-	    
+            colorUpdater = "Sliders";
+
             //The group "root" now has previously added items in it
             //ADD
             leftToolbar.getChildren().addAll(
-                    colorPickerLabel,
-                    colorPicker,
-		    hueLabel,
-		    hue,
-		    saturationLabel,
-		    saturation,
-		    brightnessLabel,
-		    brightness,
-		    opacityLabel,
-		    opacity,
-                    layerSelectionLabel,
-                    layerSelector,
+                    colorPickerLabel,colorPicker,
+                    hueLabel,hue,
+                    saturationLabel,saturation,
+                    brightnessLabel,brightness,
+                    opacityLabel,opacity,
+                    layerSelectionLabel,layerSelector,
                     editLayers,
                     newLayer,
-                    lineWidthLabel,
-                    lineWidth,
-                    toolSelectionLabel,
-                    toolListDisplay,
+                    lineWidthLabel,lineWidth,
+                    toolSelectionLabel,toolListDisplay,
                     buttonSave,
                     blendMode,
-                    buttonOpen,
-                    currentFile
+                    buttonOpen
                     );
-	    // leftToolbar.setOnMouseEntered(new EventHandler<MouseEvent>() {
-	    // 	    @Override
-	    // 	    public void handle(MouseEvent t) {
-	    // 		leftToolbar.setOpacity(1.0);
-	    // 	    }
-	    // 	});
-	    leftToolbar.setOnMouseMoved(new EventHandler<MouseEvent>() {
-	     	    @Override
-	     	    public void handle(MouseEvent t) {
-			colorUpdate();
-	     	    }
-	     	});
-	    // leftToolbar.setOnMouseExited(new EventHandler<MouseEvent>() {
-	    // 	    @Override
-	    // 	    public void handle(MouseEvent t) {
-	    // 		leftToolbar.setOpacity(0.0);
-	    // 	    }
-	    // 	});
+            // leftToolbar.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            // 	    @Override
+            // 	    public void handle(MouseEvent t) {
+            // 		leftToolbar.setOpacity(1.0);
+            // 	    }
+            // 	});
+            leftToolbar.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent t) {
+                    colorUpdate();
+                }
+            });
+            // leftToolbar.setOnMouseExited(new EventHandler<MouseEvent>() {
+            // 	    @Override
+            // 	    public void handle(MouseEvent t) {
+            // 		leftToolbar.setOpacity(0.0);
+            // 	    }
+            // 	});
             root.getChildren().addAll(borderPane);
             // The stage's scene is not the group root
             stage.setScene(new Scene(root));
@@ -391,7 +381,11 @@ public class Main extends Application {
         cursorGC.setLineCap(StrokeLineCap.ROUND);
         cursorGC.setStroke(Color.DARKGRAY);
         cursorGC.setLineWidth(1);
-        cursorGC.strokeOval(e.getX()-radius/2, e.getY()-radius/2, radius, radius);
+        if (toolListDisplay.getSelectionModel().getSelectedItem().equals("Eraser")) {
+            cursorGC.strokeRect(e.getX()-radius/2, e.getY()-radius/2, radius, radius);
+        } else {
+            cursorGC.strokeOval(e.getX()-radius/2, e.getY()-radius/2, radius, radius);
+        }
     }
 
     private void logMouseEventCoordinates(MouseEvent e){
@@ -411,16 +405,16 @@ public class Main extends Application {
     }
 
     private void colorUpdate(){
-	if (colorUpdater.equals("Sliders")){
-	    hue.setValue(colorPicker.getValue().getHue());
-	    saturation.setValue(colorPicker.getValue().getSaturation() * 100);
-	    brightness.setValue(colorPicker.getValue().getBrightness() * 100);
-	    opacity.setValue(colorPicker.getValue().getOpacity() * 100);
-	}
-	if (colorUpdater.equals("ColorPicker")){
-	    colorPicker.setValue(Color.hsb(hue.getValue(), saturation.getValue() / 100, brightness.getValue() / 100, opacity.getValue() / 100));
-	    colorUpdater = "Sliders";
-	}
+        if (colorUpdater.equals("Sliders")){
+            hue.setValue(colorPicker.getValue().getHue());
+            saturation.setValue(colorPicker.getValue().getSaturation() * 100);
+            brightness.setValue(colorPicker.getValue().getBrightness() * 100);
+            opacity.setValue(colorPicker.getValue().getOpacity() * 100);
+        }
+        if (colorUpdater.equals("ColorPicker")){
+            colorPicker.setValue(Color.hsb(hue.getValue(), saturation.getValue() / 100, brightness.getValue() / 100, opacity.getValue() / 100));
+            colorUpdater = "Sliders";
+        }
     }
 
     private void logMouseMovement() {
@@ -429,7 +423,7 @@ public class Main extends Application {
             public void handle(MouseEvent e) {
                 GraphicsContext gc = getCurrentLayer().getGraphicsContext2D();
                 cursorUpdate(e);
-		colorUpdate();
+                colorUpdate();
                 if (mouseEventLog.get(0) == MouseEvent.MOUSE_CLICKED){
                     saveCurrent();
                 }
@@ -482,13 +476,13 @@ public class Main extends Application {
                     //System.out.println(layerStrings.indexOf(layerSelector.getValue()));
                     if (e.isPrimaryButtonDown()) {
                         if ((opacity.getValue() == 100.0)
-			    && ((blendMode.getValue() == BlendMode.SRC_OVER)
-				|| (blendMode.getValue() == BlendMode.SRC_ATOP)
-				|| (blendMode.getValue() == BlendMode.RED)
-				|| (blendMode.getValue() == BlendMode.BLUE)
-				|| (blendMode.getValue() == BlendMode.GREEN)
-				|| (blendMode.getValue() == BlendMode.LIGHTEN)
-				|| (blendMode.getValue() == BlendMode.DARKEN))){
+                            && ((blendMode.getValue() == BlendMode.SRC_OVER)
+                                || (blendMode.getValue() == BlendMode.SRC_ATOP)
+                                || (blendMode.getValue() == BlendMode.RED)
+                                || (blendMode.getValue() == BlendMode.BLUE)
+                                || (blendMode.getValue() == BlendMode.GREEN)
+                                || (blendMode.getValue() == BlendMode.LIGHTEN)
+                                || (blendMode.getValue() == BlendMode.DARKEN))){
                             gc.setLineCap(StrokeLineCap.ROUND);
                         } else {
                             gc.setLineCap(StrokeLineCap.BUTT);
@@ -549,12 +543,12 @@ public class Main extends Application {
                 if (e.isAltDown() && !e.isControlDown()) {
                     WritableImage canvasSnapshot = pane.snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
                     // Chooses color from screen
-		    Color newColor = canvasSnapshot.getPixelReader().getColor((int)(e.getX()), (int)(e.getY()));
+                    Color newColor = canvasSnapshot.getPixelReader().getColor((int)(e.getX()), (int)(e.getY()));
                     colorPicker.setValue(newColor);
-		    hue.setValue(newColor.getHue());
-		    saturation.setValue(newColor.getSaturation() * 100);
-		    brightness.setValue(newColor.getBrightness() * 100);
-		    opacity.setValue(100);
+                    hue.setValue(newColor.getHue());
+                    saturation.setValue(newColor.getSaturation() * 100);
+                    brightness.setValue(newColor.getBrightness() * 100);
+                    opacity.setValue(100);
                 }
                 logMouseEventCoordinates(e);
                 logMouseEvent(MouseEvent.MOUSE_CLICKED);
