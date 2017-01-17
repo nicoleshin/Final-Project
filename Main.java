@@ -284,24 +284,12 @@ public class Main extends Application {
                     buttonSave,
                     buttonOpen
                 );
-            // leftToolbar.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            // 	    @Override
-            // 	    public void handle(MouseEvent t) {
-            // 		leftToolbar.setOpacity(1.0);
-            // 	    }
-            // 	});
             leftToolbar.setOnMouseMoved(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent t) {
                     colorUpdate();
                 }
             });
-            // leftToolbar.setOnMouseExited(new EventHandler<MouseEvent>() {
-            // 	    @Override
-            // 	    public void handle(MouseEvent t) {
-            // 		leftToolbar.setOpacity(0.0);
-            // 	    }
-            // 	});
             root.getChildren().addAll(borderPane);
             // The stage's scene is not the group root
             stage.setScene(new Scene(root));
@@ -341,9 +329,9 @@ public class Main extends Application {
             // set selected value
             layerSelector.setValue(layerName);
             pane.getChildren().add(0,canvas);
-            System.out.println(layerStrings);
-            System.out.println(pane.getChildren());
             cursorCanvas.toFront();
+            //System.out.println(layerStrings);
+            //System.out.println(pane.getChildren());
         }
     }
 
