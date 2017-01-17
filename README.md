@@ -11,6 +11,8 @@ and Photoshop.
 - Numerous shortcuts (listed below)
 
 ## Unresolved Bugs
+- The different blendmodes and changing density from 100 use a different brush type. Instead of the round/circular one, we use the butt cursor shape which does not overlap. If we use the round one, whenever the left mouse button is clicked or dragged, the program will continuously change the color of the area of the cursor, overlapping the color many times.
+- The eraser is the shape of a square because there is no built in function for clearing a circular area, only rectangles. Trying to paint with a transparent color also does not work.
 
 ## How to Compile and Run
 Compile and run Main.java to use the program.
@@ -27,4 +29,5 @@ Note that when a new layer is made, it is put below all existing layers. To reor
 - Left-click-drag: draw with selected tool
 - Right-click: switches selected tool
 - Alt + Left-click: selects color underneath cursor in current layer
-- Ctrl + Alt + Left-click-drag: Increases/decreases cursor size
+- Ctrl + Alt + Left-click-drag: Increases (right) and decreases (left) cursor size
+- Ctrl + Left-click-drag: Undo (left) and redo (right); very fast
