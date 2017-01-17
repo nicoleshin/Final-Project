@@ -361,7 +361,9 @@ public class Main extends Application {
     private void saveCurrent(){
         toRedos.clear();
         redoCanvases.clear();
-        WritableImage currentCanvasState = getCurrentLayer().snapshot(new SnapshotParameters(), new WritableImage(WIDTH, HEIGHT));
+        SnapshotParameters parameters = new SnapshotParameters();
+        parameters.setFill(Color.TRANSPARENT);
+        WritableImage currentCanvasState = getCurrentLayer().snapshot(parameters, new WritableImage(WIDTH, HEIGHT));
         toUndos.add(0, currentCanvasState);
         if (toUndos.size() > 50){
             toUndos.remove(50);
