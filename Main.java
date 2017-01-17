@@ -179,7 +179,7 @@ public class Main extends Application {
                 }
             });
 
-            Button buttonSave = new Button("Save");
+            Button buttonSave = new Button("Save Project");
             buttonSave.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent t) {
@@ -210,7 +210,7 @@ public class Main extends Application {
                 }
             });
 
-            Button buttonOpen = new Button("Open");
+            Button buttonOpen = new Button("Open File");
             Label currentFile = new Label();
             buttonOpen.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -256,21 +256,14 @@ public class Main extends Application {
 
             // Labels
             final Label colorPickerLabel = new Label("Color Selection");
-            colorPickerLabel.setPrefHeight(5);
             final Label layerSelectionLabel = new Label("Layer Selector");
-            layerSelectionLabel.setPrefHeight(5);
             final Label lineWidthLabel = new Label("Current Tool Width");
-            lineWidthLabel.setPrefHeight(5);
             final Label toolSelectionLabel = new Label("Tool Selection");
-            toolSelectionLabel.setPrefHeight(5);
             final Label hueLabel = new Label("Hue");
-            hueLabel.setPrefHeight(5);
             final Label saturationLabel = new Label("Saturation");
-            saturationLabel.setPrefHeight(5);
             final Label brightnessLabel = new Label("Brightness");
-            brightnessLabel.setPrefHeight(5);
             final Label opacityLabel = new Label("Density");
-            opacityLabel.setPrefHeight(5);
+            final Label blendModeLabel = new Label("Blend Modes Selection");
 
             colorUpdater = "Sliders";
 
@@ -287,10 +280,10 @@ public class Main extends Application {
                     newLayer,
                     lineWidthLabel,lineWidth,
                     toolSelectionLabel,toolListDisplay,
+                    blendModeLabel, blendMode,
                     buttonSave,
-                    blendMode,
                     buttonOpen
-                    );
+                );
             // leftToolbar.setOnMouseEntered(new EventHandler<MouseEvent>() {
             // 	    @Override
             // 	    public void handle(MouseEvent t) {

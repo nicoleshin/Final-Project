@@ -8,6 +8,7 @@ and Photoshop.
 - Layer creation, selection, deletion, renaming, reordering
 - Tool selection and controlling brush size
 - Saving work as png and opening png files
+- Blend modes
 - Numerous shortcuts (listed below)
 
 ## Unresolved Bugs
@@ -25,6 +26,10 @@ This dropdown tab allows you to pick the color you'd like to draw with and allow
 These sliders allow you to adjust the HSV values of the current selected color. Changing the HSV silders will select a new color with the corresponding HSV values. Note that the color black cannot be affected by the hue or saturation sliders.
 ##### Layers
 Note that when a new layer is made, it is put below all existing layers. To reorder, rename, or delete a layer, press the "Edit Layers" button.
+##### Blend Modes
+The different blend modes determine how the current selected color is blended into the current layer. More information on all the different blend modes can be found [here](https://docs.oracle.com/javafx/2/api/javafx/scene/effect/BlendMode.html).
+##### Saving and Opening Files
+You can save your current project as a png. You can open any png jpg images. It will appear in a new layer that has the name of the file's path.
 ### Controls
 - Left-click-drag: draw with selected tool
 - Right-click: switches selected tool
